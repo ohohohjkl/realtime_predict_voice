@@ -78,7 +78,8 @@ void Push(float *data, int index, float *word);
 void write_to_syll(int *d_word, char *def_name, char *ext, char *path, int *dist, float *word, struct svm_model *model);
 int silence_detect(float *data, size_t length, int *time, int *cond_flag, int *dist, float *word, float *peak, float *syll, float *lowPeak1, float *lowPeak2,
 	int *d_word, char *def_name, char *ext, char *path, float *A, float *d1, float *d2, float *d3, float *d4, float *w0, float *w1, float *w2, float *w3, float *w4, float *x, struct svm_model *model);
-void check_sentence_formation(char *path, char *ext,int sent_len);
+void check_sentence_formation(char *path, char *ext, int sent_len);
+int check_word(int word, int*pword);
 
 inline long long PerformanceCounter()
 {
@@ -238,16 +239,42 @@ int main(int argc, char **argv)
 		}
 		real_time_predict(model);
 		break;
-	case 3:
-		if ((model = svm_load_model(model_path)) == 0) {
-			fprintf(stderr, "cant load model file \n");
+	case 3: {
+		char *path = "./tu_mo_cua_truoc_ra/";
+		if (path == NULL) {
+			fprintf(stderr, "Path no exist!");
+			exit(1);
 		}
-		tflag = 1;
-		real_time_predict(model);
-
+		size_t len_path_folder = strlen(path);
+		char *path_config = (char *)malloc(sizeof(char) *(len_path_folder + 10));
+		char *path_db = (char *)malloc(sizeof(char) * (len_path_folder + 6));
+		char *path_info = (char *)malloc(sizeof(char) * (len_path_folder + 8));
+		char *path_meaning = (char *)malloc(sizeof(char) * (len_path_folder + 8));
+		char *path_nor = (char *)malloc(sizeof(char) * (len_path_folder + 14));
+		char *path_sum = (char *)malloc(sizeof(char) * (len_path_folder + 7));
+		strcpy(path_config, path);
+		strcat(path_config, "config.txt");
+		strcpy(path_db, path);
+		strcat(path_db, "db.txt");
+		strcpy(path_info, path);
+		strcat(path_info, "info.txt");
+		strcpy(path_meaning, path);
+		strcat(path_meaning, "mean.txt");
+		strcpy(path_nor, path);
+		strcat(path_nor, "normalized.txt");
+		strcpy(path_sum, path);
+		strcat(path_sum, "sum.txt");
+		FILE *config = fopen(path_config, "r");
+		if (config == NULL) {
+			fprintf(stderr, "Config file no exist!");
+			exit(1);
+		}
+		fscanf(config, "%d", &current_max_index);
+		normalize_db(path_nor, path_meaning, path_db, path_info, path_sum, current_max_index);
 		break;
+	}
 	default:
-	
+
 		break;
 	}
 	getch();
@@ -262,7 +289,7 @@ void check_sentence_formation(char *path, char *ext, int sent_len) {
 		printf("FILE DOESN'T EXIST!!");
 		exit(1);
 	}
-	int dtemp, index = 0,succeed = 0;
+	int dtemp, index = 0, succeed = 0;
 
 	while (fscanf(fsent, "%d", &dtemp) != EOF) {
 		if (dtemp == sent_buff[index]) {
@@ -277,11 +304,15 @@ void check_sentence_formation(char *path, char *ext, int sent_len) {
 	if (succeed == 0) {
 		printf("VALID SENTENCE: ");	//return true
 		for (int i = 0; i < sent_len; i++) {
-			printf("%s ", sent_buff[i]==1?"tu": (sent_buff[i] == 2 ? "trung": "anh"));
+			printf("%s ", sent_buff[i] == 2 ? "mo" : (sent_buff[i] == 3 ? "cua" : sent_buff[i] == 4 ? "truoc":"ra"));
 		}
+	}
+	else {
+		printf("INVALID SENTENCE!! ");	//return true
 	}
 	fclose(fsent);
 }
+
 
 
 void Push(float *data, int index, float *word) {
@@ -314,7 +345,7 @@ int silence_detect(float *data, size_t length, int *time, int *cond_flag, int *d
 	float sum = 0;
 	int trim_ms = 0;
 	int dem = 0;
-	int succeed = 0;
+	int succeed = 1;
 	float *db = (float *)malloc(sizeof(float) * 7);
 	while (trim_ms < length)
 	{
@@ -426,7 +457,7 @@ int silence_detect(float *data, size_t length, int *time, int *cond_flag, int *d
 				//word = (float *)realloc(word, sizeof(float) * FRAMES_PER_BUFFER);
 				*dist = 0;
 				*cond_flag = 0;
-				succeed = 0; 
+				succeed = 0;
 			}
 			else
 			{
@@ -472,16 +503,23 @@ void write_to_syll(int *d_word, char *def_name, char *ext, char*path, int *dist,
 		sent_buff[*d_word] = 1;
 	}
 	else if (temp == 2) {
-		printf("trung\n");
+		printf("mo\n");
 		sent_buff[*d_word] = 2;
 	}
 	else if (temp == 3) {
-		printf("anh\n");
+		printf("cua\n");
 		sent_buff[*d_word] = 3;
+	}
+
+	else if (temp == 4)
+	{
+		printf("truoc\n");
+		sent_buff[*d_word] = 4;
 	}
 	else
 	{
-		printf("K phai khoa!\n");
+		printf("ra\n");
+		sent_buff[*d_word] = 5;
 	}
 	*d_word += 1;
 }
@@ -510,12 +548,14 @@ void real_time_predict(struct svm_model *model) {
 	int dem = 0;
 	int time = 1;
 	int cond_flag = 0;
+	int p_word = 0;
 	float peak;
 	float syll[2];
 	int dist = 0;
 	float lowPeak1;
 	float lowPeak2;
 	int d_word = 0;
+	int temp = 1;
 	char *def_name = "syllabic";
 	char *ext = ".txt";
 	char *def_path = "./tu_trunganh_trung/";
@@ -548,7 +588,8 @@ void real_time_predict(struct svm_model *model) {
 	if (err = Pa_StartStream(stream)) goto done;
 
 	QueryPerformanceFrequency(&Frequency);
-
+	int demtemp = 0;
+	int timer = 0;
 	for (int i = 0;;) {
 		//PRINT_TIME_SAMPLE_START(start);
 		err = Pa_ReadStream(stream, sampleBlock.snippet, FRAMES_PER_BUFFER);
@@ -583,27 +624,36 @@ void real_time_predict(struct svm_model *model) {
 			}
 			else
 			{
-				int temp=1;
 				PRINT_TIME_PROCESS_START(start);
 				temp = silence_detect(queue, QUEUE_SIZE, &time, &cond_flag, &dist, word, &peak, syll, &lowPeak1, &lowPeak2, &d_word, def_name, ext, def_path, A, d1, d2,
 					d3, d4, w0, w1, w2, w3, w4, x, model);
 				PRINT_TIME_PROCESS_STOP(start, "Total", 10);
-				
-				/*if (d_word > 0&&temp==0) {
+				if (d_word == 1) {
+					p_word = d_word;
+					timer = 1;
+				}
+				/*if (d_word>0&&!check_word(d_word,p_word)) {
+					timer = 1;
+				}
+				else*/
+				if (check_word(d_word, p_word) && tdem < 100) {
+					p_word = d_word;
+					timer = 1;
+					tdem = 0;
+				}
+				if (timer) {
 					tdem++;
 					if (tdem > 100) {
-						check_sentence_formation(def_sent,ext,d_word);
-						d_word = 0;
+						check_sentence_formation(def_sent, ext, d_word);
+						d_word = p_word = 0;
 						tdem = 0;
+						timer = 0;
+						demtemp = 0;
 					}
 				}
-				else {
-					tdem = 0;
-				}*/
 			}
 		}
 	}
-
 done:
 	svm_free_and_destroy_model(model);
 	free(sampleBlock.snippet);
@@ -660,4 +710,10 @@ void normalize_test(char *filename, int row, int col) {
 	}
 	fclose(fdb);
 	free(raw_training);
+}
+
+int check_word(int word, int pword) {
+	if (word != pword)
+		return 1;
+	return 0;
 }

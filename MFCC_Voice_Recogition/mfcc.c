@@ -222,6 +222,7 @@ void normalize(char *path_nor, char *path_mean, char*path_sum, int *label, float
 		mean[i] = sum / row;
 		printf("%f ", mean[i]);
 		fprintf(fmean, "%.9f ", mean[i]);
+		printf("\nSUM: %f", sum);
 		fprintf(fsum, "%.9f ", sum);
 	}
 	fclose(fmean);
