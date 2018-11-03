@@ -1,0 +1,26 @@
+﻿  main.c
+  record.c
+d:\visualstudio_workspace\mfcc_voice_recogition\mfcc_voice_recogition\record.c(20): warning C4013: 'calloc' undefined; assuming extern returning int
+d:\visualstudio_workspace\mfcc_voice_recogition\mfcc_voice_recogition\record.c(20): warning C4312: 'type cast': conversion from 'int' to 'SAMPLE *' of greater size
+d:\visualstudio_workspace\mfcc_voice_recogition\mfcc_voice_recogition\record.c(24): warning C4013: 'exit' undefined; assuming extern returning int
+d:\visualstudio_workspace\mfcc_voice_recogition\mfcc_voice_recogition\record.c(68): warning C4098: 'get_audio_signal_from_source': 'void' function returning a value
+d:\visualstudio_workspace\mfcc_voice_recogition\mfcc_voice_recogition\record.c(12): warning C4101: 'max': unreferenced local variable
+d:\visualstudio_workspace\mfcc_voice_recogition\mfcc_voice_recogition\record.c(12): warning C4101: 'average': unreferenced local variable
+d:\visualstudio_workspace\mfcc_voice_recogition\mfcc_voice_recogition\record.c(12): warning C4101: 'val': unreferenced local variable
+d:\visualstudio_workspace\mfcc_voice_recogition\mfcc_voice_recogition\record.c(5): warning C4101: 'outputParameters': unreferenced local variable
+  utils.c
+d:\visualstudio_workspace\mfcc_voice_recogition\mfcc_voice_recogition\utils.c(7): warning C4013: 'malloc' undefined; assuming extern returning int
+d:\visualstudio_workspace\mfcc_voice_recogition\mfcc_voice_recogition\utils.c(9): warning C4047: '=': 'COMPLEX *' differs in levels of indirection from 'int'
+d:\visualstudio_workspace\mfcc_voice_recogition\mfcc_voice_recogition\utils.c(18): warning C4244: 'function': conversion from 'int' to 'float', possible loss of data
+d:\visualstudio_workspace\mfcc_voice_recogition\mfcc_voice_recogition\utils.c(19): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
+d:\visualstudio_workspace\mfcc_voice_recogition\mfcc_voice_recogition\utils.c(20): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
+d:\visualstudio_workspace\mfcc_voice_recogition\mfcc_voice_recogition\utils.c(29): warning C4013: 'free' undefined; assuming extern returning int
+d:\visualstudio_workspace\mfcc_voice_recogition\mfcc_voice_recogition\utils.c(7): warning C4047: 'initializing': 'COMPLEX **' differs in levels of indirection from 'int'
+d:\visualstudio_workspace\mfcc_voice_recogition\mfcc_voice_recogition\utils.c(37): warning C4244: 'return': conversion from 'double' to 'float', possible loss of data
+d:\visualstudio_workspace\mfcc_voice_recogition\mfcc_voice_recogition\utils.c(43): warning C4013: 'exit' undefined; assuming extern returning int
+d:\visualstudio_workspace\mfcc_voice_recogition\mfcc_voice_recogition\utils.c(42): warning C4474: 'fprintf' : too many arguments passed for format string
+  d:\visualstudio_workspace\mfcc_voice_recogition\mfcc_voice_recogition\utils.c(42): note: placeholders and their parameters expect 0 variadic arguments, but 1 were provided
+  Generating code
+  All 6 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  Finished generating code
+  MFCC_Voice_Recogition.vcxproj -> D:\VisualStudio_workspace\MFCC_Voice_Recogition\x64\Release\MFCC_Voice_Recogition.exe

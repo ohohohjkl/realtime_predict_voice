@@ -1,0 +1,4 @@
+include_directories("D:\portaudio\portaudio")
+add_definitions(-DDEBUG)
+add_executable(project main.c)
+target_link_libraries(project "D:\portaudio\portaudio\lib\libportaudio.la")

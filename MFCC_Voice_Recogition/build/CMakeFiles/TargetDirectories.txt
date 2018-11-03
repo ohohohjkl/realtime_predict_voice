@@ -1,0 +1,2 @@
+D:/VisualStudio_workspace/MFCC_Voice_Recogition/MFCC_Voice_Recogition/build/CMakeFiles/ALL_BUILD.dir
+D:/VisualStudio_workspace/MFCC_Voice_Recogition/MFCC_Voice_Recogition/build/CMakeFiles/ZERO_CHECK.dir
