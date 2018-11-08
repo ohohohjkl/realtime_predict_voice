@@ -3491,37 +3491,37 @@ inline long long PerformanceCounter()
 }
 
 
-double predict_test(SIGNAL audio_signal, char *path, int predict_probability, struct svm_model *model) {
+double predict_test(SIGNAL audio_signal, char *path, int predict_probability, struct svm_model *model, SAMPLE *sum_normal) {
 	LARGE_INTEGER Frequency;
 	QueryPerformanceFrequency(&Frequency);
 
 	long long start2 = PerformanceCounter();
-	svm_node *node = build_node_from_signal(audio_signal, path);
+	svm_node *node = build_node_from_signal(audio_signal, path, sum_normal);
 	double dftDuration2 = (double)(PerformanceCounter() - start2) * 1000.0 / (double)Frequency.QuadPart;
 	if (dftDuration2 > 10)
 		printf("feature extraction" ": %f\n", dftDuration2);
 
 
-	long long start3 = PerformanceCounter();
+	/*long long start3 = PerformanceCounter();
 	
 	double dftDuration3 = (double)(PerformanceCounter() - start3) * 1000.0 / (double)Frequency.QuadPart;
 	if (dftDuration3 > 10)
-		printf("overflowed3" ": %f\n", dftDuration3);
+		printf("overflowed3" ": %f\n", dftDuration3);*/
 
 	int correct = 0;
 	int total = 0;
 	double error = 0;
 	double sump = 0, sumt = 0, sumpp = 0, sumtt = 0, sumpt = 0;
 
-	start3 = PerformanceCounter();
+	//long long start3 = PerformanceCounter();
 
 	int svm_type = svm_get_svm_type(model);
 	int nr_class = svm_get_nr_class(model);
 
-	dftDuration3 = (double)(PerformanceCounter() - start3) * 1000.0 / (double)Frequency.QuadPart;
+	/*double dftDuration3 = (double)(PerformanceCounter() - start3) * 1000.0 / (double)Frequency.QuadPart;
 	if (dftDuration3 > 10)
 		printf("overflowed_load_type" ": %f\n", dftDuration3);
-
+*/
 	double *prob_estimate = NULL;
 	if (predict_probability) {
 		if (svm_type == NU_SVR || svm_type == EPSILON_SVR) {
@@ -3557,25 +3557,22 @@ double predict_test(SIGNAL audio_signal, char *path, int predict_probability, st
 	}
 	else {
 		//printf("111\n");
-		long long start4 = PerformanceCounter();
+		//long long start4 = PerformanceCounter();
 		predict_label = svm_predict(model, node);
 
-		double dftDuration4 = (double)(PerformanceCounter() - start4) * 1000.0 / (double)Frequency.QuadPart;
+		/*double dftDuration4 = (double)(PerformanceCounter() - start4) * 1000.0 / (double)Frequency.QuadPart;
 		if (dftDuration4 > 0.01)
-			printf("overflowed4" ": %f\n", dftDuration4);
+			printf("overflowed4" ": %f\n", dftDuration4);*/
 		//printf("%.17g\n", predict_label);
 	}
 	if (predict_probability) {
 		free(prob_estimate);
 	}
-
 	free(node);
-
-
 	return predict_label;
 }
 
-svm_node * build_node_from_signal(SIGNAL audio_signal, char *path)
+svm_node * build_node_from_signal(SIGNAL audio_signal, char *path, SAMPLE *sum_normal)
 {
 	size_t len_path = strlen(path);
 	int row_of_training_set;
@@ -3583,11 +3580,9 @@ svm_node * build_node_from_signal(SIGNAL audio_signal, char *path)
 	const char *info_path_def = "info.txt";
 	const char *config_path_def = "config.txt";
 	const char *db_path_def = "db.txt";
-	const char *sum_path_def = "sum.txt";
 	char *info_path = (char *)malloc(sizeof(char) * (len_path + 8));
 	char *config_path = (char *)malloc(sizeof(char) * (len_path + 10));
 	char *db_path = (char *)malloc(sizeof(char) * (len_path + 6));
-	char *sum_path = (char *)malloc(sizeof(char) * (len_path + 7));
 	int *info;
 	int label;
 	strcpy(info_path, path);
@@ -3596,8 +3591,6 @@ svm_node * build_node_from_signal(SIGNAL audio_signal, char *path)
 	strcat(config_path, config_path_def);
 	strcpy(db_path, path);
 	strcat(db_path, db_path_def);
-	strcpy(sum_path, path);
-	strcat(sum_path, sum_path_def);
 
 	FILE *config_file = fopen(config_path, "r");
 	if (config_file == NULL) {
@@ -3619,26 +3612,16 @@ svm_node * build_node_from_signal(SIGNAL audio_signal, char *path)
 		fscanf(info_file, "%d", &info[i]);
 	}
 	fclose(info_file);
-	SAMPLE * db_data = (SAMPLE *)malloc(sizeof(SAMPLE)*FEATSIZE);
 	
 	//xu ly db file o day
-	FILE *sum_file = fopen(sum_path, "r");
-	if (sum_file == NULL) {
-		fprintf(stderr, "db file not exists !!!\n");
-		exit(1);
-	}
-	for (int j = 0; j < FEATSIZE; ++j) {
-			fscanf(sum_file, "%f", &db_data[j]);
-		}
 	
-	fclose(sum_file);
 
 	// tinh mean o day
 	SAMPLE * mean = (SAMPLE *)malloc(sizeof(SAMPLE) * FEATSIZE);
 
 	int sum = 0;
 	for (int i = 0; i < FEATSIZE; ++i) {
-		sum = db_data[i] + feature_vector_all_frame.data[i];
+		sum = sum_normal[i] + feature_vector_all_frame.data[i];
 		mean[i] = sum / (info[row_of_training_set + 1] + 1);
 		sum = 0;
 	}
@@ -3661,14 +3644,12 @@ svm_node * build_node_from_signal(SIGNAL audio_signal, char *path)
 
 	free(mean);
 	free(feature_vector_all_frame.data);
-	free(db_data);
 	free(normalize_detect);
 	return node;
 }
 
-int predict_test_one_time(SIGNAL audio_signal,char *path, int predict_probability,struct svm_model *model) {
-	double label = predict_test(audio_signal, path, predict_probability,model);
-	return label;
+int predict_test_one_time(SIGNAL audio_signal,char *path, int predict_probability,struct svm_model *model, SAMPLE *sum_normal) {
+	return predict_test(audio_signal, path, predict_probability, model, sum_normal);
 }
 
 //void check_continue_predict(char *path, int predict_probability, char *y_n) {

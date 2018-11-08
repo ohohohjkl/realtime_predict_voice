@@ -126,22 +126,27 @@
     <ClInclude Include="complex.h" />
     <ClInclude Include="filter.h" />
     <ClInclude Include="gemm.h" />
+    <ClInclude Include="kiss_fft.h" />
     <ClInclude Include="mfcc.h" />
     <ClInclude Include="record.h" />
     <ClInclude Include="svm.h" />
     <ClInclude Include="svm2.h" />
+    <ClInclude Include="syll_fragmentation.h" />
     <ClInclude Include="utils.h" />
+    <ClInclude Include="_kiss_fft_guts.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="augmentation.c" />
     <ClCompile Include="complex.c" />
     <ClCompile Include="filter.c" />
     <ClCompile Include="gemm.c" />
+    <ClCompile Include="kiss_fft.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="mfcc.c" />
     <ClCompile Include="record.c" />
     <ClCompile Include="svm.c" />
     <ClCompile Include="svm2.cpp" />
+    <ClCompile Include="syll_fragmentation.c" />
     <ClCompile Include="utils.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -1,18 +1,6 @@
 ﻿  main.c
-d:\master_code\real_time_predictor\mfcc_voice_recogition\main.c(39): warning C4005: 'FRAMES_PER_BUFFER': macro redefinition
-  d:\master_code\real_time_predictor\mfcc_voice_recogition\record.h(17): note: see previous definition of 'FRAMES_PER_BUFFER'
-d:\master_code\real_time_predictor\mfcc_voice_recogition\main.c(41): warning C4005: 'SAMPLE_RATE': macro redefinition
-  d:\master_code\real_time_predictor\mfcc_voice_recogition\record.h(16): note: see previous definition of 'SAMPLE_RATE'
-d:\master_code\real_time_predictor\mfcc_voice_recogition\main.c(63): warning C4244: '=': conversion from 'uint16_t' to 'uint8_t', possible loss of data
-d:\master_code\real_time_predictor\mfcc_voice_recogition\main.c(280): warning C4013: 'getch' undefined; assuming extern returning int
-d:\master_code\real_time_predictor\mfcc_voice_recogition\main.c(343): warning C4267: 'function': conversion from 'size_t' to 'int', possible loss of data
-d:\master_code\real_time_predictor\mfcc_voice_recogition\main.c(356): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-d:\master_code\real_time_predictor\mfcc_voice_recogition\main.c(357): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-d:\master_code\real_time_predictor\mfcc_voice_recogition\main.c(639): warning C4047: 'function': 'int *' differs in levels of indirection from 'int'
-d:\master_code\real_time_predictor\mfcc_voice_recogition\main.c(639): warning C4024: 'check_word': different types for formal and actual parameter 2
-d:\master_code\real_time_predictor\mfcc_voice_recogition\main.c(658): warning C4047: 'function': 'svm_model **' differs in levels of indirection from 'svm_model *'
-d:\master_code\real_time_predictor\mfcc_voice_recogition\main.c(658): warning C4024: 'svm_free_and_destroy_model': different types for formal and actual parameter 1
-d:\master_code\real_time_predictor\mfcc_voice_recogition\main.c(564): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-d:\master_code\real_time_predictor\mfcc_voice_recogition\main.c(715): warning C4028: formal parameter 2 different from declaration
+d:\master_code\real_time_predictor\mfcc_voice_recogition\main.c(141): warning C4013: 'real_time_predict' undefined; assuming extern returning int
+d:\master_code\real_time_predictor\mfcc_voice_recogition\main.c(144): warning C4013: 'getch' undefined; assuming extern returning int
+d:\master_code\real_time_predictor\mfcc_voice_recogition\main.c(199): warning C4101: 'model': unreferenced local variable
   MFCC_Voice_Recogition.vcxproj -> D:\MASTER_CODE\real_time_predictor\x64\Debug\MFCC_Voice_Recogition.exe
   MFCC_Voice_Recogition.vcxproj -> D:\MASTER_CODE\real_time_predictor\x64\Debug\MFCC_Voice_Recogition.pdb (Partial PDB)

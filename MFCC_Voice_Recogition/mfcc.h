@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include "windows.h"
 #include "Sysinfoapi.h"
+#include "kiss_fft.h"
 
 /*defines, constants
 ------------------------------------------
@@ -122,6 +123,7 @@ extern "C" {
 	void _fft(cplx buf[], cplx out[], int n, int step);
 	hyper_vector fft(hyper_vector frames, int n);
 	cplx * get_complex_from_hyper_vector(hyper_vector temp);
+	void mfcc_load_normalized_sum(SAMPLE *sum_normal, char *path);
 #ifdef __cplusplus
 }
 #endif // __cplusplus

@@ -45,3 +45,46 @@ int cimag(float temp) {
 		return 1;
 	else return 0;
 }
+
+double fast_sine(float x) {
+	/*********************************************************
+	* high precision sine/cosine
+	*********************************************************/
+	double sin;
+	//always wrap input angle to -PI..PI
+	if (x < -3.14159265359)
+		x += 6.28318530718;
+	else
+		if (x > 3.14159265359)
+			x -= 6.28318530718;
+
+	//compute sine
+	if (x < 0)
+	{
+		sin = 1.27323954 * x + .405284735 * x * x;
+
+		if (sin < 0)
+			sin = .225 * (sin *-sin - sin) + sin;
+		else
+			sin = .225 * (sin * sin - sin) + sin;
+	}
+	else
+	{
+		sin = 1.27323954 * x - 0.405284735 * x * x;
+
+		if (sin < 0)
+			sin = .225 * (sin *-sin - sin) + sin;
+		else
+			sin = .225 * (sin * sin - sin) + sin;
+	}
+
+	//compute cosine: sin(x + PI/2) = cos(x)
+	x += 1.57079632679;
+	if (x > 3.14159265)
+		x -= 6.28318531;
+	return sin;
+}
+
+double fast_cosine(float x) {
+	return fast_sine(x + 1.57079632679);
+}

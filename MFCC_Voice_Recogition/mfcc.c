@@ -1,5 +1,6 @@
 ﻿#include"mfcc.h"
 
+
 /////////////////////measuring scale/////////////////////////////////
 float mel2hz(float mel)
 {
@@ -772,7 +773,15 @@ hyper_vector get_feature_vector_from_signal(SIGNAL a)
 	hyper_vector frames = getFrames(a);
 	free(a.raw_signal);
 	/*______________________compute_DFT_and_Power_spectrum____________________________________________*/
+	LARGE_INTEGER Frequency;
+	QueryPerformanceFrequency(&Frequency);
+	long long start3 = PerformanceCounter()
+		;
 	hyper_vector power_spec = fft(frames, 512);
+	
+	double dftDuration3 = (double)(PerformanceCounter() - start3) * 1000.0 / (double)Frequency.QuadPart;
+	if (dftDuration3 > 1)
+		printf("FFT" ": %f\n", dftDuration3);
 	/*______________________get_filterbanks___________________________________________________________*/
 	filter_bank fbanks = filterbank(26, 512);
 	/*______________________apply_filterBanks_________________________________________________________*/
@@ -862,6 +871,11 @@ void create_database(char * path, int max_index)
 			else {
 				index = (char *)malloc(sizeof(char) * 3);
 			}
+			
+
+			if (i == 9 && label_cur == 2) {
+				printf("");
+			}
 			sprintf(index, "%d", i);
 			size_t len = len_path_tmp + strlen(index) + 5;
 			path_file = (char *)malloc(len * sizeof(char));
@@ -937,7 +951,7 @@ void normalize_from_file(char *path_nor, char *path_mean, char *filename, char *
 	normalize(path_nor, path_mean, path_sum, label, raw_training, row, col);
 	free(label);
 	free(raw_training);
-}
+}	
 
 void _fft(cplx buf[], cplx out[], int n, int step)
 {
@@ -957,8 +971,11 @@ hyper_vector fft(hyper_vector frames, int NFFT)
 {
 	hyper_vector pow_spectrum;
 	pow_spectrum.data = (SAMPLE*)malloc(sizeof(SAMPLE) * frames.row * (NFFT/2+1));
-	cplx *buf = (cplx*)malloc(sizeof(cplx)*NFFT);
-	cplx *out = (cplx*)malloc(sizeof(cplx)*NFFT);
+	
+	kiss_fft_cpx * cx_in = (kiss_fft_cpx*)malloc(sizeof(kiss_fft_cpx)*NFFT);
+	kiss_fft_cpx * cx_out = (kiss_fft_cpx*)malloc(sizeof(kiss_fft_cpx)*NFFT);
+	kiss_fft_cfg cfg = kiss_fft_alloc(NFFT, 0, 0, 0);
+
 	///////////////power_spectrum_estimation////////////
 	float temp = 0;
 	int bound;
@@ -969,29 +986,24 @@ hyper_vector fft(hyper_vector frames, int NFFT)
 	{
 		bound = NFFT * 2;
 	}
-
-	/*for (int i = 0; i < frames.row; i++) {
-		printf("row: %d\NFFT", i + 1);
-		for (int j = 0; j < frames.col; j++)
-			printf("%f ", frames.data[i*frames.col + j]);
-	}*/
 	for (int i = 0; i < frames.row; i++) {
 		for (int j = 0; j < bound; j++) {
 			if (j < frames.col)
-				out[j].real = buf[j].real = frames.data[i*frames.col + j];
+				cx_in[j].r = frames.data[i*frames.col + j];
 			else
-				out[j].real = buf[j].real = 0;
-			out[j].imag = buf[j].imag = 0;
+				cx_in[j].r = 0;
+			cx_in[j].i = 0;
 		}
-		_fft(buf, out, NFFT, 1);
+		kiss_fft(cfg, cx_in, cx_out);
 		for (int j = 0; j < NFFT/2+1; j++) {
-			temp = magnitude(buf[j].real, buf[j].imag);
+			temp = magnitude(cx_out[j].r, cx_out[j].i);
 			pow_spectrum.data[i* (NFFT / 2 + 1) + j] = temp * temp / frames.col;
 		}
 		temp = 0;
 	}
-	free(buf);
-	free(out);
+	free(cx_in);
+	free(cx_out);
+	kiss_fft_free(cfg);
 	free(frames.data);
 
 	pow_spectrum.dim = 1;
@@ -1007,4 +1019,13 @@ cplx *get_complex_from_hyper_vector(hyper_vector temp) {
 		buf->imag = temp.data[i];
 	}
 	return buf;
+}
+
+void mfcc_load_normalized_sum(SAMPLE * sum_normal,char *path)
+{
+	FILE *f = fopen(path, "r");
+	for (int i = 0; i < FEATSIZE; i++) {
+		fscanf(f, "%f", &sum_normal[i]);
+	}
+	fclose(f);
 }

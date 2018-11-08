@@ -3,7 +3,6 @@
 
 /*define-----------------------
 ------------------------------*/
-#include <math.h>
 
 /*constants, variables--------
 ------------------------------*/
@@ -21,5 +20,6 @@ cplx add(cplx x, cplx y);
 cplx sub(cplx x, cplx y);
 int cimag(float temp);
 void show(const char * s, cplx buf[], int n);
-
+double fast_sine(float x);
+double fast_cosine(float x);
 #endif //COMPLEX_H
