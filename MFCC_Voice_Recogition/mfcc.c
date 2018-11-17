@@ -19,12 +19,13 @@ hyper_vector multiply(hyper_vector matrix1, hyper_vector matrix2)
 	int r1 = matrix1.row, c1 = matrix1.col;
 	int r2 = matrix2.row, c2 = matrix2.col;
 	int i, j, k;
-	matrix = (float*)malloc(sizeof(float)*r1*c2);
+	matrix = (float*)calloc(r1*c2, sizeof(float));
 
-	for (i = 0; i < r1; i++)
+	/*for (i = 0; i < r1; i++)
 		for (j = 0; j < c2; j++)
-			matrix[i*c2 + j] = 0;
-
+			matrix[i*c2 + j] = 0;*/
+	/*gemm(0, 0, matrix1.row, matrix2.col, matrix1.col, 1.0, matrix1.data, matrix1.col,
+		matrix2.data, matrix2.col, 1.0, matrix, matrix2.col);*/
 	for (i = 0; i < r1; i++)
 	{
 		for (j = 0; j < c2; j++)
@@ -764,6 +765,55 @@ inline long long PerformanceCounter()
 	return li.QuadPart;
 }
 
+void *runMultiThreadMatMul(void *lParams) {
+	gemm_multithread_struct *pa = (gemm_multithread_struct *)lParams;
+	gemm_multithread(pa->TA, pa->TB, pa->M, pa->N, pa->K, pa->ALPHA, pa->A, pa->lda,
+		pa->B, pa->ldb, pa->BETA, pa->C, pa->ldc, pa->id, pa->nb);
+}
+
+hyper_vector multiply_multithread(hyper_vector matrix1, hyper_vector matrix2) {
+	HANDLE *thread_mat_mul = (HANDLE *)malloc(sizeof(HANDLE) * NUMBER_OF_CORES);
+	unsigned int *threadIds = (unsigned int *)malloc(sizeof(unsigned int) * NUMBER_OF_CORES);
+	gemm_multithread_struct *ge = (gemm_multithread_struct *)malloc(sizeof(gemm_multithread_struct) * NUMBER_OF_CORES);
+	hyper_vector output;
+	int row1 = matrix1.row;
+	int row2 = matrix2.row;
+	int col1 = matrix1.col;
+	int col2 = matrix2.col;
+	output.row = row1;
+	output.col = col2;
+	output.dim = 1;
+	output.data = (SAMPLE *)calloc(row1 * col2, sizeof(SAMPLE));
+	for (int i = 0; i < NUMBER_OF_CORES; ++i) {
+		ge[i].A = matrix1.data;
+		ge[i].TA = 0;
+		ge[i].TB = 0;
+		ge[i].M = row1;
+		ge[i].N = col2;
+		ge[i].K = col1;
+		ge[i].ALPHA = 1.0;
+		ge[i].B = matrix2.data;
+		ge[i].BETA = 1.0;
+		ge[i].C = output.data;
+		ge[i].lda = col1;
+		ge[i].ldb = col2;
+		ge[i].ldc = col2;
+		ge[i].id = i;
+		ge[i].nb = NUMBER_OF_CORES;
+		thread_mat_mul[i] = _beginthreadex(0, 0, runMultiThreadMatMul, &ge[i], TRUE, &threadIds[i]);
+		if (thread_mat_mul[i] == NULL) {
+			fprintf(stderr, "failed initiate thread!!!\n");
+			exit(1);
+		}
+	}
+	WaitForMultipleObjects(NUMBER_OF_CORES, thread_mat_mul, TRUE, INFINITE);
+	for (int i = 0; i < NUMBER_OF_CORES; ++i) {
+		CloseHandle(thread_mat_mul[i]);
+	}
+	free(thread_mat_mul);
+	free(threadIds);
+	return output;
+}
 
 hyper_vector get_feature_vector_from_signal(SIGNAL a)
 {
@@ -775,29 +825,47 @@ hyper_vector get_feature_vector_from_signal(SIGNAL a)
 	/*______________________compute_DFT_and_Power_spectrum____________________________________________*/
 	LARGE_INTEGER Frequency;
 	QueryPerformanceFrequency(&Frequency);
-	long long start3 = PerformanceCounter()
-		;
+
 	hyper_vector power_spec = fft(frames, 512);
-	
-	double dftDuration3 = (double)(PerformanceCounter() - start3) * 1000.0 / (double)Frequency.QuadPart;
-	if (dftDuration3 > 1)
-		printf("FFT" ": %f\n", dftDuration3);
 	/*______________________get_filterbanks___________________________________________________________*/
 	filter_bank fbanks = filterbank(26, 512);
 	/*______________________apply_filterBanks_________________________________________________________*/
-	hyper_vector transpose_param = setHVector(fbanks.data, fbanks.filt_len, fbanks.nfilt, 1);
+	hyper_vector transpose_param = setHVector(fbanks.data, fbanks.filt_len, fbanks.nfilt, 1);		//26x257
+
 	hyper_vector tmp = transpose(transpose_param);
 	free(transpose_param.data);
+	//long long start3 = PerformanceCounter();
+//#ifdef USE_MULTI_THREAD
+//	hyper_vector apply = multiply_multithread(power_spec, tmp);
+//#else
 	hyper_vector apply = multiply(power_spec, tmp);
+//#endif // USE_MULTI_THREAD
+
+										//NUMFRAMESx257 * 257x26
+	/*double dftDuration3 = (double)(PerformanceCounter() - start3) * 1000.0 / (double)Frequency.QuadPart;
+
+	if (dftDuration3 > 0.1)
+		printf("Matrix processing" ": %f\n", dftDuration3);
+*/
 	free(tmp.data);
+
 	/*______________________get_more_compact_output_by_performing_DCT_conversion_______________________*/
+
 	hyper_vector test = DCT(apply, 13);
+
 	free(apply.data);
 	/*______________________append_frame_energy_into_mfcc_vectors______________________________________*/
 	append_energy(test, power_spec);
 	free(power_spec.data);
 	/*______________________final_feature_vector_size_1x91_____________________________________________*/
+	//long long start3 = PerformanceCounter();
+
 	hyper_vector final_feats = cov(test);
+	//double dftDuration3 = (double)(PerformanceCounter() - start3) * 1000.0 / (double)Frequency.QuadPart;
+
+	/*if (dftDuration3 > 0.1)
+		printf("Matrix processing" ": %f\n", dftDuration3);
+*/
 	free(test.data);
 	return final_feats;
 }
@@ -871,7 +939,7 @@ void create_database(char * path, int max_index)
 			else {
 				index = (char *)malloc(sizeof(char) * 3);
 			}
-			
+
 
 			if (i == 9 && label_cur == 2) {
 				printf("");
@@ -951,7 +1019,7 @@ void normalize_from_file(char *path_nor, char *path_mean, char *filename, char *
 	normalize(path_nor, path_mean, path_sum, label, raw_training, row, col);
 	free(label);
 	free(raw_training);
-}	
+}
 
 void _fft(cplx buf[], cplx out[], int n, int step)
 {
@@ -970,8 +1038,8 @@ void _fft(cplx buf[], cplx out[], int n, int step)
 hyper_vector fft(hyper_vector frames, int NFFT)
 {
 	hyper_vector pow_spectrum;
-	pow_spectrum.data = (SAMPLE*)malloc(sizeof(SAMPLE) * frames.row * (NFFT/2+1));
-	
+	pow_spectrum.data = (SAMPLE*)malloc(sizeof(SAMPLE) * frames.row * (NFFT / 2 + 1));
+
 	kiss_fft_cpx * cx_in = (kiss_fft_cpx*)malloc(sizeof(kiss_fft_cpx)*NFFT);
 	kiss_fft_cpx * cx_out = (kiss_fft_cpx*)malloc(sizeof(kiss_fft_cpx)*NFFT);
 	kiss_fft_cfg cfg = kiss_fft_alloc(NFFT, 0, 0, 0);
@@ -995,7 +1063,7 @@ hyper_vector fft(hyper_vector frames, int NFFT)
 			cx_in[j].i = 0;
 		}
 		kiss_fft(cfg, cx_in, cx_out);
-		for (int j = 0; j < NFFT/2+1; j++) {
+		for (int j = 0; j < NFFT / 2 + 1; j++) {
 			temp = magnitude(cx_out[j].r, cx_out[j].i);
 			pow_spectrum.data[i* (NFFT / 2 + 1) + j] = temp * temp / frames.col;
 		}
@@ -1007,7 +1075,7 @@ hyper_vector fft(hyper_vector frames, int NFFT)
 	free(frames.data);
 
 	pow_spectrum.dim = 1;
-	pow_spectrum.col = NFFT/2+1;
+	pow_spectrum.col = NFFT / 2 + 1;
 	pow_spectrum.row = frames.row;
 	return pow_spectrum;
 }
@@ -1021,7 +1089,7 @@ cplx *get_complex_from_hyper_vector(hyper_vector temp) {
 	return buf;
 }
 
-void mfcc_load_normalized_sum(SAMPLE * sum_normal,char *path)
+void mfcc_load_normalized_sum(SAMPLE * sum_normal, char *path)
 {
 	FILE *f = fopen(path, "r");
 	for (int i = 0; i < FEATSIZE; i++) {

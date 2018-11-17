@@ -10,9 +10,10 @@
 #include <math.h>
 #include <stdio.h>
 #include "windows.h"
+#include <process.h>
 #include "Sysinfoapi.h"
 #include "kiss_fft.h"
-
+#include "gemm.h"
 /*defines, constants
 ------------------------------------------
 ------------------------------------------*/
@@ -94,6 +95,10 @@ extern "C" {
 	float mel2hz(float hz);
 
 	hyper_vector multiply(hyper_vector matrix1, hyper_vector matrix2);
+#ifdef USE_MULTI_THREAD
+	hyper_vector multiply_multithread(hyper_vector matrix1, hyper_vector matrix2);
+#endif // USE_MULTI_THREAD
+
 	hyper_vector transpose(hyper_vector matrix);
 
 	SIGNAL silence_trim(SIGNAL a);

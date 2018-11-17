@@ -22,7 +22,7 @@ void check_sentence_formation(char *path, char *ext, int sent_len) {
 	if (succeed == 0) {
 		printf("VALID SENTENCE: ");	//return true
 		for (int i = 0; i < sent_len; i++) {
-			printf("%s ", sent_buff[i] == 2 ? "mo" : (sent_buff[i] == 3 ? "cua" : sent_buff[i] == 4 ? "truoc" : "ra"));
+			printf("%s ", sent_buff[i] == 2 ? "mo" : (sent_buff[i] == 3 ? "cua" : sent_buff[i] == 4 ? "truoc" : (sent_buff[i] == 5 ? "ra" : "non-key")));
 		}
 	}
 	else {
@@ -64,6 +64,9 @@ int silence_detect(float *data, size_t length, int *time, int *cond_flag, int *d
 	int trim_ms = 0;
 	int dem = 0;
 	int succeed = 1;
+	LARGE_INTEGER Frequency;
+	QueryPerformanceFrequency(&Frequency);
+
 	float *db = (float *)malloc(sizeof(float) * 7);
 	while (trim_ms < length)
 	{
@@ -111,7 +114,6 @@ int silence_detect(float *data, size_t length, int *time, int *cond_flag, int *d
 		else if (*lowPeak1 >= syll[1]) {
 			//printf("case 0, cond 1\n");
 			*lowPeak1 = syll[1];
-
 			/*free(word);
 			word = (float *)malloc(sizeof(float) * FRAMES_PER_BUFFER);*/
 			//word = (float *)realloc(word, sizeof(float) * FRAMES_PER_BUFFER);
@@ -168,14 +170,22 @@ int silence_detect(float *data, size_t length, int *time, int *cond_flag, int *d
 				//word = (float *)realloc(word, sizeof(float) * (*dist) * FRAMES_PER_BUFFER);
 				//word = realloc_same_add(word, (*dist - 1) * FRAMES_PER_BUFFER, (*dist) * FRAMES_PER_BUFFER);
 				Push(x, *dist - 1, word);
+				start = PerformanceCounter();
 				write_to_syll(d_word, def_name, ext, path, dist, word, model, sum_normal);
-
-				/*free(word);
-				word = (float *)malloc(sizeof(float) * FRAMES_PER_BUFFER * MAX_WORD_BUFFER);*/
+				double dftDuration3 = (double)(PerformanceCounter() - start) * 1000.0 / (double)Frequency.QuadPart;
+				if (dftDuration3 > 0.1)
+					printf("WRITE_TO" ": %f\n", dftDuration3);
+				///*free(word);
+				//word = (float *)malloc(sizeof(float) * FRAMES_PER_BUFFER * MAX_WORD_BUFFER);
 				//word = (float *)realloc(word, sizeof(float) * FRAMES_PER_BUFFER);
 				*dist = 0;
 				*cond_flag = 0;
 				succeed = 0;
+			}
+			else if (fabs(*peak - *lowPeak2) > 12 && *dist <= 18 || *dist>150) {
+				printf("EXCEPTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT\n");
+				*dist = 0;
+				*cond_flag = 0;
 			}
 			else
 			{
@@ -214,7 +224,16 @@ int silence_detect(float *data, size_t length, int *time, int *cond_flag, int *d
 }
 
 void write_to_syll(int *d_word, char *def_name, char *ext, char*path, int *dist, float *word, struct svm_model *model, SAMPLE *sum_normal) {
+	/*LARGE_INTEGER Frequency;
+	QueryPerformanceFrequency(&Frequency);
+
+	start = PerformanceCounter();
+	*/
 	SIGNAL a = setSignal2(word, (*dist)*FRAMES_PER_BUFFER);
+	
+	/*double dftDuration3 = (double)(PerformanceCounter() - start) * 1000.0 / (double)Frequency.QuadPart;
+	if (dftDuration3 > 0.1)
+		printf("WRITE_TO" ": %f\n", dftDuration3);*/
 	int temp = predict_test_one_time(a, path, 0, model, sum_normal);
 	if (temp == 1) {
 		printf("tu\n");
@@ -233,10 +252,14 @@ void write_to_syll(int *d_word, char *def_name, char *ext, char*path, int *dist,
 		printf("truoc\n");
 		sent_buff[*d_word] = 4;
 	}
-	else
+	else if (temp==5)
 	{
 		printf("ra\n");
 		sent_buff[*d_word] = 5;
+	}
+	else {
+		printf("non-key\n");
+		sent_buff[*d_word] = 6;
 	}
 	*d_word += 1;
 }
@@ -335,8 +358,14 @@ void real_time_predict(struct svm_model *model, SAMPLE *sum_normal) {
 					continue;
 				}
 				else {
+					PRINT_TIME_PROCESS_START(start);
 					silence_detect(queue, QUEUE_SIZE, &time, &cond_flag, &dist, word, &peak, syll, &lowPeak1, &lowPeak2, &d_word, def_name, ext, def_path, A, d1, d2, d3, d4,
 						w0, w1, w2, w3, w4, x, model, sum_normal);
+					PRINT_TIME_PROCESS_STOP(start, "Total1", 1);
+					if (d_word == 1) {
+						p_word = d_word;
+						timer = 1;
+					}
 				}
 			}
 			else
@@ -344,7 +373,7 @@ void real_time_predict(struct svm_model *model, SAMPLE *sum_normal) {
 				PRINT_TIME_PROCESS_START(start);
 				temp = silence_detect(queue, QUEUE_SIZE, &time, &cond_flag, &dist, word, &peak, syll, &lowPeak1, &lowPeak2, &d_word, def_name, ext, def_path, A, d1, d2,
 					d3, d4, w0, w1, w2, w3, w4, x, model, sum_normal);
-				PRINT_TIME_PROCESS_STOP(start, "Total", 1);
+				PRINT_TIME_PROCESS_STOP(start, "Total2", 1);
 				if (d_word == 1) {
 					p_word = d_word;
 					timer = 1;
@@ -398,9 +427,9 @@ int check_word(int word, int pword) {
 	return 0;
 }
 
-//inline long long PerformanceCounter()
-//{
-//	LARGE_INTEGER li;
-//	QueryPerformanceCounter(&li);
-//	return li.QuadPart;
-//}
+inline long long PerformanceCounter()
+{
+	LARGE_INTEGER li;
+	QueryPerformanceCounter(&li);
+	return li.QuadPart;
+}

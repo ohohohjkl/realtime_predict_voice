@@ -3492,36 +3492,27 @@ inline long long PerformanceCounter()
 
 
 double predict_test(SIGNAL audio_signal, char *path, int predict_probability, struct svm_model *model, SAMPLE *sum_normal) {
-	LARGE_INTEGER Frequency;
+	/*LARGE_INTEGER Frequency;
 	QueryPerformanceFrequency(&Frequency);
-
-	long long start2 = PerformanceCounter();
+*/
+	//long long start2 = PerformanceCounter();
 	svm_node *node = build_node_from_signal(audio_signal, path, sum_normal);
-	double dftDuration2 = (double)(PerformanceCounter() - start2) * 1000.0 / (double)Frequency.QuadPart;
-	if (dftDuration2 > 10)
+	/*double dftDuration2 = (double)(PerformanceCounter() - start2) * 1000.0 / (double)Frequency.QuadPart;
+	if (dftDuration2 > 1)
 		printf("feature extraction" ": %f\n", dftDuration2);
 
 
-	/*long long start3 = PerformanceCounter();
-	
-	double dftDuration3 = (double)(PerformanceCounter() - start3) * 1000.0 / (double)Frequency.QuadPart;
-	if (dftDuration3 > 10)
-		printf("overflowed3" ": %f\n", dftDuration3);*/
-
+	long long start3 = PerformanceCounter();
+	*/
 	int correct = 0;
 	int total = 0;
 	double error = 0;
 	double sump = 0, sumt = 0, sumpp = 0, sumtt = 0, sumpt = 0;
 
-	//long long start3 = PerformanceCounter();
-
 	int svm_type = svm_get_svm_type(model);
 	int nr_class = svm_get_nr_class(model);
 
-	/*double dftDuration3 = (double)(PerformanceCounter() - start3) * 1000.0 / (double)Frequency.QuadPart;
-	if (dftDuration3 > 10)
-		printf("overflowed_load_type" ": %f\n", dftDuration3);
-*/
+	
 	double *prob_estimate = NULL;
 	if (predict_probability) {
 		if (svm_type == NU_SVR || svm_type == EPSILON_SVR) {
@@ -3569,6 +3560,9 @@ double predict_test(SIGNAL audio_signal, char *path, int predict_probability, st
 		free(prob_estimate);
 	}
 	free(node);
+	/*double dftDuration3 = (double)(PerformanceCounter() - start3) * 1000.0 / (double)Frequency.QuadPart;
+	if (dftDuration3 > 0.1)
+		printf("predict" ": %f\n", dftDuration3);*/
 	return predict_label;
 }
 
@@ -3649,7 +3643,7 @@ svm_node * build_node_from_signal(SIGNAL audio_signal, char *path, SAMPLE *sum_n
 }
 
 int predict_test_one_time(SIGNAL audio_signal,char *path, int predict_probability,struct svm_model *model, SAMPLE *sum_normal) {
-	return predict_test(audio_signal, path, predict_probability, model, sum_normal);
+	return 	predict_test(audio_signal, path, predict_probability, model, sum_normal);
 }
 
 //void check_continue_predict(char *path, int predict_probability, char *y_n) {

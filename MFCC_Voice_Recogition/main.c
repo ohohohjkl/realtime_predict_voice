@@ -140,7 +140,7 @@ int main(int argc, char **argv)
 		mfcc_load_normalized_sum(sum_normal, sum_path);
 		real_time_predict(model, sum_normal);
 	}
-	//OPTION();
+	OPTION();
 	getch();
 }
 

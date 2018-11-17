@@ -9,6 +9,7 @@
 #include "windows.h"
 #include "Sysinfoapi.h"
 
+
 #define SAMPLE float
 /*constants, variables--------
 ------------------------------*/
@@ -72,6 +73,7 @@ void write_to_syll(int *d_word, char *def_name, char *ext, char *path, int *dist
 int silence_detect(float *data, size_t length, int *time, int *cond_flag, int *dist, float *word, float *peak, float *syll, float *lowPeak1, float *lowPeak2,
 	int *d_word, char *def_name, char *ext, char *path, float *A, float *d1, float *d2, float *d3, float *d4, float *w0, float *w1, float *w2, float *w3, float *w4, float *x, struct svm_model *model, SAMPLE *sum_normal);
 void check_sentence_formation(char *path, char *ext, int sent_len);
+inline long long PerformanceCounter();
 int check_word(int word, int*pword);
 
 #endif // !SYLL_FRAGMENTATION_H
