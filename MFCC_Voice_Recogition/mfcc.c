@@ -397,7 +397,6 @@ hyper_vector DCT(hyper_vector a, int num_ceps) {
 	float *temp = (float*)malloc(sizeof(float)*len);
 	float factor = PI / a.col;
 	float sum;
-
 	for (k = 0; k < a.row; k++) {
 		for (i = 0; i < len; i++) {
 			sum = 0;
@@ -587,12 +586,23 @@ hyper_vector setHVector(SAMPLE * a, int col, int row, int dim)
 	return temp_vector;
 }
 
+hyper_vector setHVector2(SAMPLE * a, int col, int row, int dim)
+{
+	hyper_vector temp_vector;
+	temp_vector.col = col;
+	temp_vector.row = row;
+	temp_vector.dim = dim;
+	temp_vector.data = (SAMPLE *)malloc(sizeof(SAMPLE) * row * col *dim);
+	for (int i = 0; i < col * row * dim; ++i) {
+		temp_vector.data[i] = a[i];
+	}
+	return temp_vector;
+}
 hyper_vector getFrames(SIGNAL a)
 {
 	int signal_len = a.signal_length;
 	int frame_len = a.frame_length;
 	int frame_step = a.step_lengh;
-
 	if (signal_len <= frame_len)        //s? m?u toàn tín hi?u nh? hon d? r?ng khung
 		a.num_frame = 1;
 	else
@@ -621,7 +631,6 @@ hyper_vector getFrames(SIGNAL a)
 	int index = 0;
 	int dem1 = 0, dem2 = 0;
 	int temp = frame_step;
-
 	SAMPLE *frames = (SAMPLE*)malloc(sizeof(SAMPLE) * a.num_frame * a.frame_length);
 
 	for (int i = 0; i < a.num_frame; i++) {
@@ -636,7 +645,6 @@ hyper_vector getFrames(SIGNAL a)
 			for (int i = 0; i < frame_len; i++)
 			{
 				frames[index * frame_len + i] = signal[i];
-
 				/*printf("%f  ", frames[index * frame_len + i]);*/
 			}
 		else                          //cac frames con lai, framestep->(framelen + framestep)...
@@ -815,12 +823,12 @@ hyper_vector multiply_multithread(hyper_vector matrix1, hyper_vector matrix2) {
 	return output;
 }
 
-hyper_vector get_feature_vector_from_signal(SIGNAL a)
+hyper_vector get_feature_vector_from_signal(SIGNAL a, filter_bank fbank)
 {
 	/*______________________get_pre_emphasized_signal_________________________________________________*/
-	/*______________________get_silence_free_signal_________________________________________________*/
+	/*______________________get_silence_free_signal___________________________________________________*/
 	/*______________________get_Frames________________________________________________________________*/
-	hyper_vector frames = getFrames(a);
+	hyper_vector frames = getFrames(a);			
 	free(a.raw_signal);
 	/*______________________compute_DFT_and_Power_spectrum____________________________________________*/
 	LARGE_INTEGER Frequency;
@@ -828,9 +836,8 @@ hyper_vector get_feature_vector_from_signal(SIGNAL a)
 
 	hyper_vector power_spec = fft(frames, 512);
 	/*______________________get_filterbanks___________________________________________________________*/
-	filter_bank fbanks = filterbank(26, 512);
 	/*______________________apply_filterBanks_________________________________________________________*/
-	hyper_vector transpose_param = setHVector(fbanks.data, fbanks.filt_len, fbanks.nfilt, 1);		//26x257
+	hyper_vector transpose_param = setHVector2(fbank.data, fbank.filt_len, fbank.nfilt, 1);		//26x257
 
 	hyper_vector tmp = transpose(transpose_param);
 	free(transpose_param.data);
@@ -880,7 +887,7 @@ hyper_vector get_first_single_frame(hyper_vector feature_vector)
 	return first_single_frame;
 }
 
-void create_database(char * path, int max_index)
+void create_database(char * path, int max_index, filter_bank fbank)
 {
 	int  label_cur = 0, i = 0;
 	char *label;
@@ -960,7 +967,7 @@ void create_database(char * path, int max_index)
 
 			SIGNAL a = setSignal(audio_signal, size);
 
-			hyper_vector feature_vector_all_frame = get_feature_vector_from_signal(a);
+			hyper_vector feature_vector_all_frame = get_feature_vector_from_signal(a, fbank);
 			int size_feature_vector = feature_vector_all_frame.col * feature_vector_all_frame.row * feature_vector_all_frame.dim;
 			printf("size_feature_vector : %d \n", size_feature_vector);
 			fprintf(fdb, "%d ", label_cur + 1);

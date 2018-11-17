@@ -3491,12 +3491,12 @@ inline long long PerformanceCounter()
 }
 
 
-double predict_test(SIGNAL audio_signal, char *path, int predict_probability, struct svm_model *model, SAMPLE *sum_normal) {
+double predict_test(SIGNAL audio_signal, char *path, int predict_probability, struct svm_model *model, SAMPLE *sum_normal, filter_bank fbank) {
 	/*LARGE_INTEGER Frequency;
 	QueryPerformanceFrequency(&Frequency);
 */
 	//long long start2 = PerformanceCounter();
-	svm_node *node = build_node_from_signal(audio_signal, path, sum_normal);
+	svm_node *node = build_node_from_signal(audio_signal, path, sum_normal, fbank);
 	/*double dftDuration2 = (double)(PerformanceCounter() - start2) * 1000.0 / (double)Frequency.QuadPart;
 	if (dftDuration2 > 1)
 		printf("feature extraction" ": %f\n", dftDuration2);
@@ -3566,7 +3566,7 @@ double predict_test(SIGNAL audio_signal, char *path, int predict_probability, st
 	return predict_label;
 }
 
-svm_node * build_node_from_signal(SIGNAL audio_signal, char *path, SAMPLE *sum_normal)
+svm_node * build_node_from_signal(SIGNAL audio_signal, char *path, SAMPLE *sum_normal, filter_bank fbank)
 {
 	size_t len_path = strlen(path);
 	int row_of_training_set;
@@ -3595,7 +3595,7 @@ svm_node * build_node_from_signal(SIGNAL audio_signal, char *path, SAMPLE *sum_n
 	info = (int *)malloc(sizeof(int) * (row_of_training_set + 2));
 	fclose(config_file);
 	
-	hyper_vector feature_vector_all_frame = get_feature_vector_from_signal(audio_signal);
+	hyper_vector feature_vector_all_frame = get_feature_vector_from_signal(audio_signal, fbank);
 	int size_feature_vector = feature_vector_all_frame.row * feature_vector_all_frame.col * feature_vector_all_frame.dim;
 	FILE *info_file = fopen(info_path, "r");
 	if (info_file == NULL) {
@@ -3642,8 +3642,8 @@ svm_node * build_node_from_signal(SIGNAL audio_signal, char *path, SAMPLE *sum_n
 	return node;
 }
 
-int predict_test_one_time(SIGNAL audio_signal,char *path, int predict_probability,struct svm_model *model, SAMPLE *sum_normal) {
-	return 	predict_test(audio_signal, path, predict_probability, model, sum_normal);
+int predict_test_one_time(SIGNAL audio_signal,char *path, int predict_probability,struct svm_model *model, SAMPLE *sum_normal, filter_bank fbank) {
+	return 	predict_test(audio_signal, path, predict_probability, model, sum_normal, fbank);
 }
 
 //void check_continue_predict(char *path, int predict_probability, char *y_n) {

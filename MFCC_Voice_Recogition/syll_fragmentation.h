@@ -67,12 +67,12 @@ AudioData initAudioData(uint32_t sampleRate, uint16_t channels, int type)
 
 /*functions--------------------
 ------------------------------*/
-void real_time_predict(struct svm_model *model, SAMPLE *sum_normal, char *def_path);
+void real_time_predict(struct svm_model *model, SAMPLE *sum_normal, char *def_path, char *sent_path);
 void Push(float *data, int index, float *word);
-void write_to_syll(int *d_word, char *def_name, char *ext, char *path, int *dist, float *word, struct svm_model *model, SAMPLE *sum_normal);
+void write_to_syll(int *d_word, char *def_name, char *ext, char *path, int *dist, float *word, struct svm_model *model, SAMPLE *sum_normal, filter_bank fbank);
 int silence_detect(float *data, size_t length, int *time, int *cond_flag, int *dist, float *word, float *peak, float *syll, float *lowPeak1, float *lowPeak2,
-	int *d_word, char *def_name, char *ext, char *path, float *A, float *d1, float *d2, float *d3, float *d4, float *w0, float *w1, float *w2, float *w3, float *w4, float *x, struct svm_model *model, SAMPLE *sum_normal);
-void check_sentence_formation(char *path, char *ext, int sent_len);
+	int *d_word, char *def_name, char *ext, char *path, float *A, float *d1, float *d2, float *d3, float *d4, float *w0, float *w1, float *w2, float *w3, float *w4, float *x, struct svm_model *model, SAMPLE *sum_normal, filter_bank fbank);
+void check_sentence_formation(char *path, char *ext, int sent_len, char *wtemp);
 inline long long PerformanceCounter();
 int check_word(int word, int*pword);
 

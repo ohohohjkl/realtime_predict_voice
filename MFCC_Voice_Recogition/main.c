@@ -76,7 +76,8 @@ int main(int argc, char **argv)
 		}
 		fscanf(config, "%d", &current_max_index);
 		fclose(config);
-		create_database(path, current_max_index);
+		filter_bank fbanks = filterbank(26, 512);
+		create_database(path, current_max_index,fbanks);
 	}
 	if (is_normalize_db) {
 		char *path = argv[2];
@@ -116,7 +117,8 @@ int main(int argc, char **argv)
 		training_normalize(path, argc, argv);
 	}
 	if (is_predict) {
-		char *path = argv[argc - 1];
+		char *sent_path = argv[argc - 1];
+		char *path = argv[argc - 2];
 		const char *model_path_def = "normalized.model";
 		const char *sum_path_def = "sum.txt";
 		size_t len_path = strlen(path);
@@ -137,8 +139,9 @@ int main(int argc, char **argv)
 		}
 
 		SAMPLE *sum_normal = (SAMPLE*)malloc(sizeof(SAMPLE) * 91);
+		filter_bank fbanks = filterbank(26, 512);
 		mfcc_load_normalized_sum(sum_normal, sum_path);
-		real_time_predict(model, sum_normal,path);
+		real_time_predict(model, sum_normal,path, sent_path);
 	}
 	OPTION();
 	getch();
@@ -233,7 +236,8 @@ void OPTION() {
 		}
 		fscanf(config, "%d", &current_max_index);
 		fclose(config);
-		create_database(path, current_max_index);
+		filter_bank fbank = filterbank(26, 512);
+		create_database(path, current_max_index,fbank);
 		break;
 	case 2:
 	{
@@ -260,8 +264,7 @@ void OPTION() {
 		for (int i = 0; i < 91; i++) {
 			printf("%f\n", sum_normal[i]);
 		}
-
-		real_time_predict(model, sum_normal);
+		real_time_predict(model, sum_normal, path);
 		break;
 	}
 	case 3: {

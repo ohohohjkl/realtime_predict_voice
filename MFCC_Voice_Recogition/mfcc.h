@@ -79,6 +79,7 @@ extern "C" {
 	SIGNAL setSignal(SAMPLE *a, int size);
 	SIGNAL setSignal2(SAMPLE * a, int size);
 	hyper_vector setHVector(SAMPLE *a, int col, int row, int dim);
+	hyper_vector setHVector2(SAMPLE * a, int col, int row, int dim);
 	hyper_vector getFrames(struct SIGNAL a);
 	void append_energy(hyper_vector dct, hyper_vector pow_spec);
 
@@ -110,8 +111,7 @@ extern "C" {
 	void Get_normalize(int label, float * data, int row, int col);
 	void normalize2(int label, float * data, int row, int col);
 	hyper_vector var(hyper_vector);
-
-	hyper_vector get_feature_vector_from_signal(SIGNAL a);
+	hyper_vector get_feature_vector_from_signal(SIGNAL a,filter_bank fbank);
 	void write_feature_vector_to_database(hyper_vector feature_vector, char *name);
 
 	////////////////////////////////
@@ -120,7 +120,7 @@ extern "C" {
 
 	//////////////////////test_signal_via_matlab/////////////////////////
 	void writeDBFS(SAMPLE* raw_signal, int trim_ms, int signal_len);
-	void create_database(char *path, int max_index);
+	void create_database(char *path, int max_index, filter_bank fbank);
 	void normalize_db(char *path_nor, char *path_mean, char *path_db, char *path_info, char*path_sum, int max_index);
 	void normalize_from_file(char *path_nor, char *path_mean, char *filename, char*path_sum, int row, int col);
 

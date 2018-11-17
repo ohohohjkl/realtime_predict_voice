@@ -1,28 +1,30 @@
 #include "syll_fragmentation.h"
 
-void check_sentence_formation(char *path, char *ext, int sent_len) {
+void check_sentence_formation(char *path, char *ext, int sent_len, char *wtemp) {
 	FILE *fsent = fopen(path, "r");
 
 	if (fsent == NULL) {
 		printf("FILE DOESN'T EXIST!!");
 		exit(1);
 	}
-	int dtemp, index = 0, succeed = 0;
+	int num, dtemp, succeed = 0;
+	fscanf(fsent, "%d", &num);
 
-	while (fscanf(fsent, "%d", &dtemp) != EOF) {
-		if (dtemp == sent_buff[index]) {
+	for (int i = 0; i < num;i++) {
+		fscanf(fsent, "%d", &dtemp);
+		if (dtemp == sent_buff[i]) {
 			succeed = 0;
 		}
 		else {
 			succeed = 1;
 			break;
 		}
-		index++;
 	}
 	if (succeed == 0) {
 		printf("VALID SENTENCE: ");	//return true
-		for (int i = 0; i < sent_len; i++) {
-			printf("%s ", sent_buff[i] == 2 ? "mo" : (sent_buff[i] == 3 ? "cua" : sent_buff[i] == 4 ? "truoc" : (sent_buff[i] == 5 ? "ra" : "non-key")));
+		for (int i = 0; i < num; i++) {
+			fscanf(fsent, "%s", wtemp);
+			printf("%s ", wtemp);
 		}
 	}
 	else {
@@ -57,7 +59,7 @@ void Push(float *data, int index, float *word) {
 }
 
 int silence_detect(float *data, size_t length, int *time, int *cond_flag, int *dist, float *word, float *peak, float *syll, float *lowPeak1, float *lowPeak2,
-	int *d_word, char *def_name, char *ext, char *path, float *A, float *d1, float *d2, float *d3, float *d4, float *w0, float *w1, float *w2, float *w3, float *w4, float *x, struct svm_model *model, SAMPLE *sum_normal) {
+	int *d_word, char *def_name, char *ext, char *path, float *A, float *d1, float *d2, float *d3, float *d4, float *w0, float *w1, float *w2, float *w3, float *w4, float *x, struct svm_model *model, SAMPLE *sum_normal, filter_bank fbank) {
 	x = butterworth_bandpass_v2(2, data, length, 16000, 4000, 500, A, d1, d2, d3, d4, w0, w1, w2, w3, w4, x);
 	int chunk_size = 160;
 	float sum = 0;
@@ -171,7 +173,8 @@ int silence_detect(float *data, size_t length, int *time, int *cond_flag, int *d
 				//word = realloc_same_add(word, (*dist - 1) * FRAMES_PER_BUFFER, (*dist) * FRAMES_PER_BUFFER);
 				Push(x, *dist - 1, word);
 				start = PerformanceCounter();
-				write_to_syll(d_word, def_name, ext, path, dist, word, model, sum_normal);
+
+				write_to_syll(d_word, def_name, ext, path, dist, word, model, sum_normal, fbank);
 				double dftDuration3 = (double)(PerformanceCounter() - start) * 1000.0 / (double)Frequency.QuadPart;
 				if (dftDuration3 > 0.1)
 					printf("WRITE_TO" ": %f\n", dftDuration3);
@@ -182,7 +185,7 @@ int silence_detect(float *data, size_t length, int *time, int *cond_flag, int *d
 				*cond_flag = 0;
 				succeed = 0;
 			}
-			else if (fabs(*peak - *lowPeak2) > 12 && *dist <= 18 || *dist>150) {
+			else if (fabs(*peak - *lowPeak2) > 12 && *dist <= 18 || *dist > 150) {
 				printf("EXCEPTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT\n");
 				*dist = 0;
 				*cond_flag = 0;
@@ -223,18 +226,18 @@ int silence_detect(float *data, size_t length, int *time, int *cond_flag, int *d
 	return succeed;
 }
 
-void write_to_syll(int *d_word, char *def_name, char *ext, char*path, int *dist, float *word, struct svm_model *model, SAMPLE *sum_normal) {
+void write_to_syll(int *d_word, char *def_name, char *ext, char*path, int *dist, float *word, struct svm_model *model, SAMPLE *sum_normal, filter_bank fbank) {
 	/*LARGE_INTEGER Frequency;
 	QueryPerformanceFrequency(&Frequency);
 
 	start = PerformanceCounter();
 	*/
 	SIGNAL a = setSignal2(word, (*dist)*FRAMES_PER_BUFFER);
-	
+
 	/*double dftDuration3 = (double)(PerformanceCounter() - start) * 1000.0 / (double)Frequency.QuadPart;
 	if (dftDuration3 > 0.1)
 		printf("WRITE_TO" ": %f\n", dftDuration3);*/
-	int temp = predict_test_one_time(a, path, 0, model, sum_normal);
+	int temp = predict_test_one_time(a, path, 0, model, sum_normal, fbank);
 	if (temp == 1) {
 		printf("tu\n");
 		sent_buff[*d_word] = 1;
@@ -252,7 +255,7 @@ void write_to_syll(int *d_word, char *def_name, char *ext, char*path, int *dist,
 		printf("truoc\n");
 		sent_buff[*d_word] = 4;
 	}
-	else if (temp==5)
+	else if (temp == 5)
 	{
 		printf("ra\n");
 		sent_buff[*d_word] = 5;
@@ -264,7 +267,8 @@ void write_to_syll(int *d_word, char *def_name, char *ext, char*path, int *dist,
 	*d_word += 1;
 }
 
-void real_time_predict(struct svm_model *model, SAMPLE *sum_normal,char *def_path) {
+void real_time_predict(struct svm_model *model, SAMPLE *sum_normal, char *def_path, char *sent_path) {
+	filter_bank fbank = filterbank(26, 512);
 	sent_buff = (int*)malloc(sizeof(int) * 7);
 	int order = 2;
 	float *A = (float *)malloc(sizeof(float) * order);
@@ -282,6 +286,7 @@ void real_time_predict(struct svm_model *model, SAMPLE *sum_normal,char *def_pat
 
 	float *queue = (float *)malloc(sizeof(float) * QUEUE_SIZE);
 	float *word = (float *)malloc(sizeof(float) * FRAMES_PER_BUFFER * MAX_WORD_BUFFER);
+	char *wtemp = (char*)malloc(sizeof(char) * 8);
 	int trim_ms = 0;
 	int offset = FRAMES_PER_BUFFER;
 	int flag = 1;
@@ -299,8 +304,6 @@ void real_time_predict(struct svm_model *model, SAMPLE *sum_normal,char *def_pat
 	char *def_name = "syllabic";
 	char *ext = ".txt";
 	///////////////////////////
-	char *def_sent = "./sentences/s_1.txt";
-	int sent_len = strlen(def_sent);
 	///////////////////////////
 	int get_data_time = 0;
 	PaError err = paNoError;
@@ -336,6 +339,7 @@ void real_time_predict(struct svm_model *model, SAMPLE *sum_normal,char *def_pat
 
 		if (err) goto done;
 		else {
+
 			if (trim_ms < QUEUE_SIZE) {
 				for (int j = trim_ms, k = 0; j < trim_ms + offset; ++j) {
 					queue[j] = sampleBlock.snippet[k];
@@ -359,7 +363,7 @@ void real_time_predict(struct svm_model *model, SAMPLE *sum_normal,char *def_pat
 				else {
 					PRINT_TIME_PROCESS_START(start);
 					silence_detect(queue, QUEUE_SIZE, &time, &cond_flag, &dist, word, &peak, syll, &lowPeak1, &lowPeak2, &d_word, def_name, ext, def_path, A, d1, d2, d3, d4,
-						w0, w1, w2, w3, w4, x, model, sum_normal);
+						w0, w1, w2, w3, w4, x, model, sum_normal, fbank);
 					PRINT_TIME_PROCESS_STOP(start, "Total1", 1);
 					if (d_word == 1) {
 						p_word = d_word;
@@ -371,16 +375,12 @@ void real_time_predict(struct svm_model *model, SAMPLE *sum_normal,char *def_pat
 			{
 				PRINT_TIME_PROCESS_START(start);
 				temp = silence_detect(queue, QUEUE_SIZE, &time, &cond_flag, &dist, word, &peak, syll, &lowPeak1, &lowPeak2, &d_word, def_name, ext, def_path, A, d1, d2,
-					d3, d4, w0, w1, w2, w3, w4, x, model, sum_normal);
+					d3, d4, w0, w1, w2, w3, w4, x, model, sum_normal, fbank);
 				PRINT_TIME_PROCESS_STOP(start, "Total2", 1);
 				if (d_word == 1) {
 					p_word = d_word;
 					timer = 1;
 				}
-				/*if (d_word>0&&!check_word(d_word,p_word)) {
-				timer = 1;
-				}
-				else*/
 				if (check_word(d_word, p_word) && tdem < 100) {
 					p_word = d_word;
 					timer = 1;
@@ -389,7 +389,7 @@ void real_time_predict(struct svm_model *model, SAMPLE *sum_normal,char *def_pat
 				if (timer) {
 					tdem++;
 					if (tdem > 100) {
-						check_sentence_formation(def_sent, ext, d_word);
+						check_sentence_formation(sent_path, ext, d_word,wtemp);
 						d_word = p_word = 0;
 						tdem = 0;
 						timer = 0;
