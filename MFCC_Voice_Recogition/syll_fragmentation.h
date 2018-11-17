@@ -67,7 +67,7 @@ AudioData initAudioData(uint32_t sampleRate, uint16_t channels, int type)
 
 /*functions--------------------
 ------------------------------*/
-void real_time_predict(struct svm_model *model, SAMPLE *sum_normal);
+void real_time_predict(struct svm_model *model, SAMPLE *sum_normal, char *def_path);
 void Push(float *data, int index, float *word);
 void write_to_syll(int *d_word, char *def_name, char *ext, char *path, int *dist, float *word, struct svm_model *model, SAMPLE *sum_normal);
 int silence_detect(float *data, size_t length, int *time, int *cond_flag, int *dist, float *word, float *peak, float *syll, float *lowPeak1, float *lowPeak2,

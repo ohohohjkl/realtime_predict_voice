@@ -8,16 +8,15 @@ d:\master_code\real_time_predictor\mfcc_voice_recogition\syll_fragmentation.c(61
 d:\master_code\real_time_predictor\mfcc_voice_recogition\syll_fragmentation.c(77): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
 d:\master_code\real_time_predictor\mfcc_voice_recogition\syll_fragmentation.c(78): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
 d:\master_code\real_time_predictor\mfcc_voice_recogition\syll_fragmentation.c(237): warning C4013: 'predict_test_one_time' undefined; assuming extern returning int
-d:\master_code\real_time_predictor\mfcc_voice_recogition\syll_fragmentation.c(385): warning C4047: 'function': 'int *' differs in levels of indirection from 'int'
-d:\master_code\real_time_predictor\mfcc_voice_recogition\syll_fragmentation.c(385): warning C4024: 'check_word': different types for formal and actual parameter 2
-d:\master_code\real_time_predictor\mfcc_voice_recogition\syll_fragmentation.c(404): warning C4013: 'svm_free_and_destroy_model' undefined; assuming extern returning int
-d:\master_code\real_time_predictor\mfcc_voice_recogition\syll_fragmentation.c(304): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-d:\master_code\real_time_predictor\mfcc_voice_recogition\syll_fragmentation.c(424): warning C4028: formal parameter 2 different from declaration
-  svm2.cpp
-d:\master_code\real_time_predictor\mfcc_voice_recogition\svm2.cpp(3618): warning C4244: '=': conversion from 'SAMPLE' to 'int', possible loss of data
-d:\master_code\real_time_predictor\mfcc_voice_recogition\svm2.cpp(3619): warning C4244: '=': conversion from 'int' to 'SAMPLE', possible loss of data
-d:\master_code\real_time_predictor\mfcc_voice_recogition\svm2.cpp(3625): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-d:\master_code\real_time_predictor\mfcc_voice_recogition\svm2.cpp(3581): warning C4101: 'label': unreferenced local variable
-d:\master_code\real_time_predictor\mfcc_voice_recogition\svm2.cpp(3646): warning C4244: 'return': conversion from 'double' to 'int', possible loss of data
+d:\master_code\real_time_predictor\mfcc_voice_recogition\syll_fragmentation.c(384): warning C4047: 'function': 'int *' differs in levels of indirection from 'int'
+d:\master_code\real_time_predictor\mfcc_voice_recogition\syll_fragmentation.c(384): warning C4024: 'check_word': different types for formal and actual parameter 2
+d:\master_code\real_time_predictor\mfcc_voice_recogition\syll_fragmentation.c(403): warning C4013: 'svm_free_and_destroy_model' undefined; assuming extern returning int
+d:\master_code\real_time_predictor\mfcc_voice_recogition\syll_fragmentation.c(303): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+d:\master_code\real_time_predictor\mfcc_voice_recogition\syll_fragmentation.c(423): warning C4028: formal parameter 2 different from declaration
+  main.c
+d:\master_code\real_time_predictor\mfcc_voice_recogition\main.c(141): warning C4013: 'real_time_predict' undefined; assuming extern returning int
+d:\master_code\real_time_predictor\mfcc_voice_recogition\main.c(144): warning C4013: 'getch' undefined; assuming extern returning int
+d:\master_code\real_time_predictor\mfcc_voice_recogition\main.c(199): warning C4101: 'model': unreferenced local variable
+  Generating Code...
   MFCC_Voice_Recogition.vcxproj -> D:\MASTER_CODE\real_time_predictor\x64\Debug\MFCC_Voice_Recogition.exe
   MFCC_Voice_Recogition.vcxproj -> D:\MASTER_CODE\real_time_predictor\x64\Debug\MFCC_Voice_Recogition.pdb (Partial PDB)

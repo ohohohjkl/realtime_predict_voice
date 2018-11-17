@@ -264,7 +264,7 @@ void write_to_syll(int *d_word, char *def_name, char *ext, char*path, int *dist,
 	*d_word += 1;
 }
 
-void real_time_predict(struct svm_model *model, SAMPLE *sum_normal) {
+void real_time_predict(struct svm_model *model, SAMPLE *sum_normal,char *def_path) {
 	sent_buff = (int*)malloc(sizeof(int) * 7);
 	int order = 2;
 	float *A = (float *)malloc(sizeof(float) * order);
@@ -298,7 +298,6 @@ void real_time_predict(struct svm_model *model, SAMPLE *sum_normal) {
 	int temp = 1;
 	char *def_name = "syllabic";
 	char *ext = ".txt";
-	char *def_path = "./tu_trunganh_trung/";
 	///////////////////////////
 	char *def_sent = "./sentences/s_1.txt";
 	int sent_len = strlen(def_sent);
