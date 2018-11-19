@@ -823,6 +823,33 @@ hyper_vector multiply_multithread(hyper_vector matrix1, hyper_vector matrix2) {
 	return output;
 }
 
+/*
+GetFrames: 
+input size: raw_signal_length
+output: numOfFrames * 400
+
+FFT:
+input size: numOfFrames * 400
+output: numframes * 257
+
+multiply:
+input size: numframesx257.
+process: numframesx257 * 257x26
+output size: numframesx26.
+
+DCT:
+input size: numframesx26
+output: numframesx13
+
+APPEND energy: append frame's average energy to the beginning of each feature vector.
+input size: numframesx13
+output size: numframesx13
+
+Cov (covariance matrix):
+input size: numframesx13
+output size: 1x91
+*/
+
 hyper_vector get_feature_vector_from_signal(SIGNAL a, filter_bank fbank)
 {
 	/*______________________get_pre_emphasized_signal_________________________________________________*/
