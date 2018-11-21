@@ -51,6 +51,15 @@
     <ClInclude Include="syll_fragmentation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="pa_memorybarrier.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="pa_ringbuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="pa_util.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="record.c">
@@ -87,6 +96,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="syll_fragmentation.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="temp.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="pa_ringbuffer.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="pa_win_util.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

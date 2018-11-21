@@ -172,4 +172,3 @@ SAMPLE * read_audio_signal_from_file(char * path,int* size)
 	fclose(fp);
 	return audio_signal;
 }
-

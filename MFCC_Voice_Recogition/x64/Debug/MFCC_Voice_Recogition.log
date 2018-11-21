@@ -1,68 +1,7 @@
-﻿  syll_fragmentation.c
-d:\master_code\real_time_predictor\mfcc_voice_recogition\syll_fragmentation.h(37): warning C4005: 'FRAMES_PER_BUFFER': macro redefinition
-  d:\master_code\real_time_predictor\mfcc_voice_recogition\record.h(17): note: see previous definition of 'FRAMES_PER_BUFFER'
-d:\master_code\real_time_predictor\mfcc_voice_recogition\syll_fragmentation.h(39): warning C4005: 'SAMPLE_RATE': macro redefinition
-  d:\master_code\real_time_predictor\mfcc_voice_recogition\record.h(16): note: see previous definition of 'SAMPLE_RATE'
-d:\master_code\real_time_predictor\mfcc_voice_recogition\syll_fragmentation.h(61): warning C4244: '=': conversion from 'uint16_t' to 'uint8_t', possible loss of data
-d:\master_code\real_time_predictor\mfcc_voice_recogition\syll_fragmentation.c(63): warning C4267: 'function': conversion from 'size_t' to 'int', possible loss of data
-d:\master_code\real_time_predictor\mfcc_voice_recogition\syll_fragmentation.c(79): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-d:\master_code\real_time_predictor\mfcc_voice_recogition\syll_fragmentation.c(80): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-d:\master_code\real_time_predictor\mfcc_voice_recogition\syll_fragmentation.c(240): warning C4013: 'predict_test_one_time' undefined; assuming extern returning int
-d:\master_code\real_time_predictor\mfcc_voice_recogition\syll_fragmentation.c(384): warning C4047: 'function': 'int *' differs in levels of indirection from 'int'
-d:\master_code\real_time_predictor\mfcc_voice_recogition\syll_fragmentation.c(384): warning C4024: 'check_word': different types for formal and actual parameter 2
-d:\master_code\real_time_predictor\mfcc_voice_recogition\syll_fragmentation.c(403): warning C4013: 'svm_free_and_destroy_model' undefined; assuming extern returning int
-d:\master_code\real_time_predictor\mfcc_voice_recogition\syll_fragmentation.c(423): warning C4028: formal parameter 2 different from declaration
-  mfcc.c
-d:\master_code\real_time_predictor\mfcc_voice_recogition\mfcc.c(7): warning C4244: 'return': conversion from 'double' to 'float', possible loss of data
-d:\master_code\real_time_predictor\mfcc_voice_recogition\mfcc.c(12): warning C4244: 'return': conversion from 'double' to 'float', possible loss of data
-d:\master_code\real_time_predictor\mfcc_voice_recogition\mfcc.c(36): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-d:\master_code\real_time_predictor\mfcc_voice_recogition\mfcc.c(51): warning C4101: 'j': unreferenced local variable
-d:\master_code\real_time_predictor\mfcc_voice_recogition\mfcc.c(51): warning C4101: 'i': unreferenced local variable
-d:\master_code\real_time_predictor\mfcc_voice_recogition\mfcc.c(74): warning C4013: 'detect_silence' undefined; assuming extern returning int
-d:\master_code\real_time_predictor\mfcc_voice_recogition\mfcc.c(106): warning C4013: 'dBFS' undefined; assuming extern returning int
-d:\master_code\real_time_predictor\mfcc_voice_recogition\mfcc.c(118): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-d:\master_code\real_time_predictor\mfcc_voice_recogition\mfcc.c(119): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-d:\master_code\real_time_predictor\mfcc_voice_recogition\mfcc.c(127): warning C4101: 't': unreferenced local variable
-d:\master_code\real_time_predictor\mfcc_voice_recogition\mfcc.c(170): warning C4244: 'function': conversion from 'float' to '::size_t', possible loss of data
-d:\master_code\real_time_predictor\mfcc_voice_recogition\mfcc.c(204): warning C4244: 'function': conversion from 'float' to 'int', possible loss of data
-d:\master_code\real_time_predictor\mfcc_voice_recogition\mfcc.c(169): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
-d:\master_code\real_time_predictor\mfcc_voice_recogition\mfcc.c(239): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-d:\master_code\real_time_predictor\mfcc_voice_recogition\mfcc.c(292): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-d:\master_code\real_time_predictor\mfcc_voice_recogition\mfcc.c(340): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-d:\master_code\real_time_predictor\mfcc_voice_recogition\mfcc.c(373): warning C4101: 'fmean': unreferenced local variable
-d:\master_code\real_time_predictor\mfcc_voice_recogition\mfcc.c(404): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
-d:\master_code\real_time_predictor\mfcc_voice_recogition\mfcc.c(398): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-d:\master_code\real_time_predictor\mfcc_voice_recogition\mfcc.c(435): warning C4244: 'function': conversion from 'int' to 'float', possible loss of data
-d:\master_code\real_time_predictor\mfcc_voice_recogition\mfcc.c(436): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
-d:\master_code\real_time_predictor\mfcc_voice_recogition\mfcc.c(437): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
-d:\master_code\real_time_predictor\mfcc_voice_recogition\mfcc.c(434): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-d:\master_code\real_time_predictor\mfcc_voice_recogition\mfcc.c(454): warning C4244: 'return': conversion from 'double' to 'float', possible loss of data
-d:\master_code\real_time_predictor\mfcc_voice_recogition\mfcc.c(470): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-d:\master_code\real_time_predictor\mfcc_voice_recogition\mfcc.c(472): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-d:\master_code\real_time_predictor\mfcc_voice_recogition\mfcc.c(479): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-d:\master_code\real_time_predictor\mfcc_voice_recogition\mfcc.c(484): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-d:\master_code\real_time_predictor\mfcc_voice_recogition\mfcc.c(513): warning C4244: 'return': conversion from 'double' to 'float', possible loss of data
-d:\master_code\real_time_predictor\mfcc_voice_recogition\mfcc.c(556): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
-d:\master_code\real_time_predictor\mfcc_voice_recogition\mfcc.c(557): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
-d:\master_code\real_time_predictor\mfcc_voice_recogition\mfcc.c(570): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
-d:\master_code\real_time_predictor\mfcc_voice_recogition\mfcc.c(571): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
-d:\master_code\real_time_predictor\mfcc_voice_recogition\mfcc.c(611): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-d:\master_code\real_time_predictor\mfcc_voice_recogition\mfcc.c(679): warning C4244: '=': conversion from 'double' to 'SAMPLE', possible loss of data
-d:\master_code\real_time_predictor\mfcc_voice_recogition\mfcc.c(700): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
-d:\master_code\real_time_predictor\mfcc_voice_recogition\mfcc.c(701): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
-d:\master_code\real_time_predictor\mfcc_voice_recogition\mfcc.c(761): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-d:\master_code\real_time_predictor\mfcc_voice_recogition\mfcc.c(762): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-d:\master_code\real_time_predictor\mfcc_voice_recogition\mfcc.c(745): warning C4477: 'fprintf' : format string '%.8f' requires an argument of type 'double', but variadic argument 1 has type 'SAMPLE *'
-d:\master_code\real_time_predictor\mfcc_voice_recogition\mfcc.c(811): warning C4047: 'function': '_beginthreadex_proc_type' differs in levels of indirection from 'void *(__cdecl *)(void *)'
-d:\master_code\real_time_predictor\mfcc_voice_recogition\mfcc.c(811): warning C4024: '_beginthreadex': different types for formal and actual parameter 3
-d:\master_code\real_time_predictor\mfcc_voice_recogition\mfcc.c(811): warning C4047: '=': 'HANDLE' differs in levels of indirection from 'uintptr_t'
-d:\master_code\real_time_predictor\mfcc_voice_recogition\mfcc.c(1038): warning C4244: 'function': conversion from 'double' to 'float', possible loss of data
-  main.c
+﻿  main.c
 d:\master_code\real_time_predictor\mfcc_voice_recogition\main.c(144): warning C4013: 'real_time_predict' undefined; assuming extern returning int
 d:\master_code\real_time_predictor\mfcc_voice_recogition\main.c(147): warning C4013: 'getch' undefined; assuming extern returning int
 d:\master_code\real_time_predictor\mfcc_voice_recogition\main.c(142): warning C4101: 'fbanks': unreferenced local variable
 d:\master_code\real_time_predictor\mfcc_voice_recogition\main.c(202): warning C4101: 'model': unreferenced local variable
-  Generating Code...
-d:\master_code\real_time_predictor\mfcc_voice_recogition\mfcc.c(780): warning C4716: 'runMultiThreadMatMul': must return a value
   MFCC_Voice_Recogition.vcxproj -> D:\MASTER_CODE\real_time_predictor\x64\Debug\MFCC_Voice_Recogition.exe
   MFCC_Voice_Recogition.vcxproj -> D:\MASTER_CODE\real_time_predictor\x64\Debug\MFCC_Voice_Recogition.pdb (Partial PDB)

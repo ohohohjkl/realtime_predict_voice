@@ -84,11 +84,12 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(PORT_AUDIO)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\c_lib\pa_stable_v19_20140130\portaudio\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;USE_MULTI_THREAD;NUMBER_OF_CORES=2;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalDependencies>$(PORT_AUDIO)\build\msvc\x64\debug\portaudio_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>D:\c_lib\pa_stable_v19_20140130\portaudio\src\common;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -128,6 +129,9 @@
     <ClInclude Include="gemm.h" />
     <ClInclude Include="kiss_fft.h" />
     <ClInclude Include="mfcc.h" />
+    <ClInclude Include="pa_memorybarrier.h" />
+    <ClInclude Include="pa_ringbuffer.h" />
+    <ClInclude Include="pa_util.h" />
     <ClInclude Include="record.h" />
     <ClInclude Include="svm.h" />
     <ClInclude Include="svm2.h" />
@@ -143,10 +147,13 @@
     <ClCompile Include="kiss_fft.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="mfcc.c" />
+    <ClCompile Include="pa_ringbuffer.c" />
+    <ClCompile Include="pa_win_util.c" />
     <ClCompile Include="record.c" />
     <ClCompile Include="svm.c" />
     <ClCompile Include="svm2.cpp" />
     <ClCompile Include="syll_fragmentation.c" />
+    <ClCompile Include="temp.c" />
     <ClCompile Include="utils.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
