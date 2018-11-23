@@ -10,6 +10,8 @@
 #include "portaudio.h"
 #include "pa_ringbuffer.h"
 #include "pa_util.h"
+#include <mmsystem.h>
+#pragma comment (lib , "winmm.lib")
 
 #ifdef _WIN64
 #include <windows.h>
@@ -60,17 +62,17 @@ int *sent_buff;
 #define DITHER_FLAG     (0) /**/
 
 typedef int(*ThreadFunctionType)(void*);
+void *threadHandle;
 
-
-//typedef struct
-//{
-//	unsigned            frameIndex;
-//	int                 threadSyncFlag;
-//	SAMPLE             *ringBufferData;
-//	PaUtilRingBuffer    ringBuffer;
-//	FILE               *file;
-//	void               *threadHandle;
-//}paTestData;
+typedef struct
+{
+	unsigned            frameIndex;
+	int                 threadSyncFlag;
+	SAMPLE             *ringBufferData;
+	PaUtilRingBuffer    ringBuffer;
+	FILE               *file;
+	void               *threadHandle;
+}paTestData;
 
 typedef struct
 {
@@ -100,17 +102,19 @@ AudioData initAudioData(uint32_t sampleRate, uint16_t channels, int type)
 
 /*functions--------------------
 ------------------------------*/
-void real_time_predict(struct svm_model *model, SAMPLE *sum_normal, char *def_path, char *sent_path);
-void real_time_predict2(struct svm_model *model, SAMPLE *sum_normal, char *def_path, char *sent_path);
+void real_time_predict(struct svm_model *model, SAMPLE *sum_normal, char *def_path, char *sent_path, int num_of_sents);
+void real_time_predict3(struct svm_model *model, SAMPLE *sum_normal, char *def_path, char *sent_path);
 void Push(float *data, int index, float *word);
 void write_to_syll(int *d_word, char *def_name, char *ext, char *path, int *dist, float *word, struct svm_model *model, SAMPLE *sum_normal, filter_bank fbank);
 int silence_detect(float *data, size_t length, int *time, int *cond_flag, int *dist, float *word, float *peak, float *syll, float *lowPeak1, float *lowPeak2,
 	int *d_word, char *def_name, char *ext, char *path, float *A, float *d1, float *d2, float *d3, float *d4, float *w0, float *w1, float *w2, float *w3, float *w4, float *x, struct svm_model *model, SAMPLE *sum_normal, filter_bank fbank, PaStream *stream);
-void check_sentence_formation(char *path, char *ext, int sent_len, char *wtemp);
+void check_sentence_formation(char *path, char *ext, int sent_len, char *wtemp, int num_of_sents);
 inline long long PerformanceCounter();
 int check_word(int word, int*pword);
 
 ////
+static int play_sound(char* path);
+static void stopThread2(void* threadHandle);
 static int threadFunctionWriteToRawFile(void* ptr);
 static int threadFunctionReadFromRawFile(void* ptr);
 

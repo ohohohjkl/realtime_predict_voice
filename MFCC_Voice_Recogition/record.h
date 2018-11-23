@@ -44,15 +44,6 @@ typedef unsigned char SAMPLE;
 #define PRINTF_S_FORMAT "%d"
 #endif
 
-
-typedef struct
-{
-	int          frameIndex;  /* Index into sample array. */
-	int          maxFrameIndex;
-	SAMPLE      *recordedSamples;
-}
-paTestData;
-
 typedef enum KEYWORDS {
 	TU,
 	TRUNG_ANH,

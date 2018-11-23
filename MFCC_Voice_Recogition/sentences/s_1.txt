@@ -1,1 +1,4 @@
-1 1 3 3 2
+4
+2 3 4 5
+mo cua truoc ra
+.\\sentences\\mo_cua_truoc_ra.wav

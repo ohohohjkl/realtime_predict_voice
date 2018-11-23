@@ -1,0 +1,4 @@
+3
+6 3 4
+dong cua truoc
+.\\sentences\\dong_cua_truoc.wav

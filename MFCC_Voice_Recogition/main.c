@@ -121,16 +121,22 @@ int main(int argc, char **argv)
 		char *path = argv[argc - 2];
 		const char *model_path_def = "normalized.model";
 		const char *sum_path_def = "sum.txt";
+		const char* num_sent_def = "num_sents.txt";
 		size_t len_path = strlen(path);
+		size_t len_path_sent = strlen(sent_path);
 
 		char *model_path = (char *)malloc(sizeof(char) * (len_path + 16));
 		char *sum_path = (char *)malloc(sizeof(char) * (len_path + 7));
+		char *num_sent = (char *)malloc(sizeof(char) * (len_path_sent + 8));
 
 		strcpy(model_path, path);
 		strcat(model_path, model_path_def);
 
 		strcpy(sum_path, path);
 		strcat(sum_path, sum_path_def);
+
+		strcpy(num_sent, sent_path);
+		strcat(num_sent, num_sent_def);
 
 		struct svm_model *model;
 		if ((model = svm_load_model(model_path)) == 0) {
@@ -141,7 +147,12 @@ int main(int argc, char **argv)
 		SAMPLE *sum_normal = (SAMPLE*)malloc(sizeof(SAMPLE) * 91);
 		filter_bank fbanks = filterbank(26, 512);
 		mfcc_load_normalized_sum(sum_normal, sum_path);
-		real_time_predict(model, sum_normal,path, sent_path);
+		
+		FILE* fnumt = fopen(num_sent, "r");
+		int num_of_sents;
+		fscanf(fnumt, "%d", &num_of_sents);
+		fclose(fnumt);
+		real_time_predict(model, sum_normal,path, sent_path, num_of_sents);
 	}
 	OPTION();
 	getch();
@@ -193,7 +204,7 @@ void normalize_test(char *filename, int row, int col) {
 
 void OPTION() {
 	int current_max_index = 0;
-	char *path = "./tu_trunganh_trung/";
+	char *path = "./tu_dong_mo_cua_truoc_ra/";
 	size_t len_path = strlen(path);
 	const char *model_path_def = "normalized.model";
 	char *model_path = (char *)malloc(sizeof(char) * (len_path + 16));
@@ -264,7 +275,22 @@ void OPTION() {
 		for (int i = 0; i < 91; i++) {
 			printf("%f\n", sum_normal[i]);
 		}
-		real_time_predict(model, sum_normal, path);
+
+		char *sent_path = "./sentences/";
+		const char* num_sent_def = "num_sents.txt";
+		size_t len_path_sent = strlen(sent_path);
+
+		char *num_sent = (char *)malloc(sizeof(char) * (len_path_sent + 8));
+
+		strcpy(num_sent, sent_path);
+		strcat(num_sent, num_sent_def);
+
+		FILE* fnumt = fopen(num_sent, "r");
+		int num_of_sents;
+		fscanf(fnumt, "%d", &num_of_sents);
+		fclose(fnumt);
+
+		real_time_predict(model, sum_normal, path, sent_path, num_of_sents);
 		break;
 	}
 	case 3: {
@@ -276,6 +302,10 @@ void OPTION() {
 		fscanf(config, "%d", &current_max_index);
 		normalize_db(path_nor, path_meaning, path_db, path_info, path_sum, current_max_index);
 		break;
+	}
+	case 4: {
+		char *path = ".\\sentences\\mo_cua_truoc_ra.wav";
+		PlaySound(path, NULL, SND_SYNC);
 	}
 	default:
 
