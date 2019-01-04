@@ -19,13 +19,13 @@ SAMPLE * get_audio_signal_from_source(int *size)
 
 	*size = numSamples;
 	numBytes = numSamples * sizeof(SAMPLE);
-	recordedSamples = (SAMPLE *) malloc(numBytes);
+	recordedSamples = (SAMPLE *)malloc(numBytes);
 	if (!recordedSamples)
 	{
 		printf("Could not allocate record array.\n");
 		exit(1);
 	}
-	for (i = 0; i<numSamples; i++) *(recordedSamples + i) = 0;
+	for (i = 0; i < numSamples; i++) *(recordedSamples + i) = 0;
 
 	err = Pa_Initialize();
 	if (err != paNoError) goto error;
@@ -149,11 +149,11 @@ int get_number_of_sample_in_record()
 	return NUM_SECONDS * SAMPLE_RATE * NUM_CHANNELS;
 }
 
-SAMPLE * read_audio_signal_from_file(char * path,int* size)
+SAMPLE * read_audio_signal_from_file(char * path, int* size)
 {
 	int i, j;
 	FILE *fp = fopen(path, "r");
-	
+
 	fscanf(fp, "%d", size);
 
 	SAMPLE *audio_signal = (SAMPLE *)malloc(sizeof(SAMPLE) * (*size));
@@ -165,8 +165,8 @@ SAMPLE * read_audio_signal_from_file(char * path,int* size)
 	}
 	else {
 		for (i = 0; i < (*size); ++i) {
-				fscanf(fp, "%f", &tmp);
-				audio_signal[i] = tmp;
+			fscanf(fp, "%f", &tmp);
+			audio_signal[i] = tmp;
 		}
 	}
 	fclose(fp);

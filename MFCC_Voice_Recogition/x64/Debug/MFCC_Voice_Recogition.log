@@ -1,22 +1,8 @@
-﻿  syll_fragmentation.c
-d:\master_code\real_time_predictor\mfcc_voice_recogition\syll_fragmentation.h(57): warning C4005: 'FRAMES_PER_BUFFER': macro redefinition
-  d:\master_code\real_time_predictor\mfcc_voice_recogition\record.h(17): note: see previous definition of 'FRAMES_PER_BUFFER'
-d:\master_code\real_time_predictor\mfcc_voice_recogition\syll_fragmentation.h(58): warning C4005: 'NUM_SECONDS': macro redefinition
-  d:\master_code\real_time_predictor\mfcc_voice_recogition\record.h(18): note: see previous definition of 'NUM_SECONDS'
-d:\master_code\real_time_predictor\mfcc_voice_recogition\syll_fragmentation.h(96): warning C4244: '=': conversion from 'uint16_t' to 'uint8_t', possible loss of data
-d:\master_code\real_time_predictor\mfcc_voice_recogition\syll_fragmentation.c(42): warning C4013: 'startThread2' undefined; assuming extern returning int
-d:\master_code\real_time_predictor\mfcc_voice_recogition\syll_fragmentation.c(84): warning C4267: 'function': conversion from 'size_t' to 'int', possible loss of data
-d:\master_code\real_time_predictor\mfcc_voice_recogition\syll_fragmentation.c(100): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-d:\master_code\real_time_predictor\mfcc_voice_recogition\syll_fragmentation.c(101): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-d:\master_code\real_time_predictor\mfcc_voice_recogition\syll_fragmentation.c(262): warning C4013: 'predict_test_one_time' undefined; assuming extern returning int
-d:\master_code\real_time_predictor\mfcc_voice_recogition\syll_fragmentation.c(411): warning C4047: 'function': 'int *' differs in levels of indirection from 'int'
-d:\master_code\real_time_predictor\mfcc_voice_recogition\syll_fragmentation.c(411): warning C4024: 'check_word': different types for formal and actual parameter 2
-d:\master_code\real_time_predictor\mfcc_voice_recogition\syll_fragmentation.c(430): warning C4013: 'svm_free_and_destroy_model' undefined; assuming extern returning int
-d:\master_code\real_time_predictor\mfcc_voice_recogition\syll_fragmentation.c(450): warning C4028: formal parameter 2 different from declaration
-d:\master_code\real_time_predictor\mfcc_voice_recogition\syll_fragmentation.c(619): warning C4047: 'function': 'unsigned int *' differs in levels of indirection from 'int'
-d:\master_code\real_time_predictor\mfcc_voice_recogition\syll_fragmentation.c(619): warning C4024: '_beginthreadex': different types for formal and actual parameter 6
-d:\master_code\real_time_predictor\mfcc_voice_recogition\syll_fragmentation.c(619): warning C4020: '_beginthreadex': too many actual parameters
-d:\master_code\real_time_predictor\mfcc_voice_recogition\syll_fragmentation.c(874): warning C4716: 'play_sound': must return a value
-d:\master_code\real_time_predictor\mfcc_voice_recogition\syll_fragmentation.c(894): warning C4715: 'startThread2': not all control paths return a value
-  MFCC_Voice_Recogition.vcxproj -> D:\MASTER_CODE\real_time_predictor\x64\Debug\MFCC_Voice_Recogition.exe
-  MFCC_Voice_Recogition.vcxproj -> D:\MASTER_CODE\real_time_predictor\x64\Debug\MFCC_Voice_Recogition.pdb (Partial PDB)
+﻿  main.c
+d:\visual_studio_workspace\master_code\real_time_predictor\mfcc_voice_recogition\main.c(39): warning C4013: 'record_audio_to_database2' undefined; assuming extern returning int
+d:\visual_studio_workspace\master_code\real_time_predictor\mfcc_voice_recogition\main.c(147): warning C4013: 'real_time_predict' undefined; assuming extern returning int
+d:\visual_studio_workspace\master_code\real_time_predictor\mfcc_voice_recogition\main.c(150): warning C4013: 'getch' undefined; assuming extern returning int
+d:\visual_studio_workspace\master_code\real_time_predictor\mfcc_voice_recogition\main.c(175): warning C4133: 'initializing': incompatible types - from 'int **' to 'char **'
+d:\visual_studio_workspace\master_code\real_time_predictor\mfcc_voice_recogition\main.c(237): warning C4101: 'model': unreferenced local variable
+d:\visual_studio_workspace\master_code\real_time_predictor\mfcc_voice_recogition\main.c(304): warning C4101: 'fbanks': unreferenced local variable
+  MFCC_Voice_Recogition.vcxproj -> D:\Visual_Studio_Workspace\master_code\real_time_predictor\x64\Debug\MFCC_Voice_Recogition.exe

@@ -1,0 +1,4 @@
+4
+2 3 9 10
+mo cua tang hai
+.\\sentences\\mo_cua_tang_hai.wav

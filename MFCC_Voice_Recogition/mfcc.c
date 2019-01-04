@@ -283,8 +283,6 @@ void Get_normalize(int label, float * data, int row, int col)
 		fprintf(fmean, "%.9f ", mean[i]);
 	}
 	fclose(fmean);
-
-
 	float maximum = 0;
 
 	for (j = 0; j < col; j++)
@@ -305,10 +303,6 @@ void Get_normalize(int label, float * data, int row, int col)
 	fprintf(fnorl, "\n");
 	fclose(fnorl);
 }
-
-
-
-
 
 void normalize2(int label, float * data, int row, int col)
 {
@@ -390,33 +384,87 @@ void normalizet(int *label, float * data, int row, int col)
 
 }
 //////////////////////////////////////////////////////
+static void forwardTransform(double vector[], double temp[], size_t len) {
+	if (len == 1)
+		return;
+	size_t halfLen = len / 2;
+	for (size_t i = 0; i < halfLen; i++) {
+		double x = vector[i];
+		double y = vector[len - 1 - i];
+		temp[i] = x + y;
+		temp[i + halfLen] = (x - y) / (cos((i + 0.5) * M_PI / len) * 2);
+	}
+	forwardTransform(temp, vector, halfLen);
+	forwardTransform(&temp[halfLen], vector, halfLen);
+	for (size_t i = 0; i < halfLen - 1; i++) {
+		vector[i * 2 + 0] = temp[i];
+		vector[i * 2 + 1] = temp[i + halfLen] + temp[i + halfLen + 1];
+	}
+	vector[len - 2] = temp[halfLen - 1];
+	vector[len - 1] = temp[len - 1];
+}
+
+bool FastDctLee_transform(double vector[], size_t len) {
+	if (len > 0 && (len & (len - 1)) != 0)
+		return false;  // Length is not power of 2
+	if (SIZE_MAX / sizeof(double) < len)
+		return false;
+	double *temp = malloc(len * sizeof(double));
+	if (temp == NULL)
+		return false;
+	forwardTransform(vector, temp, len);
+	free(temp);
+	return true;
+}
+
 hyper_vector DCT(hyper_vector a, int num_ceps) {
 	int i, j, k;
 	int len = a.col;
 	float *dct = (float*)malloc(sizeof(float)*a.row*num_ceps);
-	float *temp = (float*)malloc(sizeof(float)*len);
+	//float *temp = (float*)malloc(sizeof(float)*len);
 	float factor = PI / a.col;
 	float sum;
 	for (k = 0; k < a.row; k++) {
-		for (i = 0; i < len; i++) {
+		for (i = 0; i < num_ceps; i++) {
 			sum = 0;
 			for (j = 0; j < len; j++)
 				sum += a.data[k*len + j] * cos((j + 0.5) * i * factor);
-			temp[i] = sum;
+			dct[k*num_ceps + i] = sum;
+			printf("%f ", sum);
 		}
-		for (j = 0; j < num_ceps; j++) {
-			//if (k == 498) {
-			//	printf("cc ");
-			//}
+		printf("\n");
+
+		/*for (j = 0; j < num_ceps; j++) {	
 			dct[k*num_ceps + j] = temp[j];
-			//printf("%.4f  ", dct[k*num_ceps + j]);
-		}
-		//printf("\n");
+		}*/
 	}
-	free(temp);
+	//free(temp);
 	return setHVector(dct, num_ceps, a.row, 1);
 }
 
+hyper_vector DCT2(hyper_vector a, int num_ceps) {
+	int len = a.col;
+	hyper_vector dct;
+	dct.data = (SAMPLE*)malloc(sizeof(SAMPLE) * a.row * num_ceps);
+	double *dct_temp = (double*)calloc(16,sizeof(double));
+	for (int k = 0; k < a.row; k++) {		
+		for (int i = 0; i < 16; i++) {
+			dct_temp[i] = a.data[k*len + i];
+			//printf("%f ", dct_temp[i]);
+		}
+		FastDctLee_transform(dct_temp, 16);
+		for (int i = 0; i < num_ceps; i++) {
+			dct.data[k*num_ceps + i] = dct_temp[i];
+			//printf("%f ", dct.data[k*num_ceps + i]);
+		}
+		//printf("\n");
+	}
+	free(dct_temp);
+	dct.dim = 1;
+	dct.row = a.row;
+	dct.col = num_ceps;
+	return dct;
+}
 
 /////////////////////////////////MFCCs////////////////////////////////////////
 hyper_vector DFT_PowerSpectrum(hyper_vector frame, int pointFFT)
@@ -564,9 +612,10 @@ SIGNAL setSignal2(SAMPLE * a, int size)
 {
 	SIGNAL temp;
 	temp.raw_signal = (float *)malloc(sizeof(float) * size);
-	for (int i = 0; i < size; ++i) {
+	memcpy(temp.raw_signal, a, sizeof(float) * size);
+	/*for (int i = 0; i < size; ++i) {
 		temp.raw_signal[i] = a[i];
-	}
+	}*/
 	temp.frame_length = SAMPLE_RATE * 0.025;
 	temp.step_lengh = SAMPLE_RATE * 0.01;
 	temp.signal_length = size;
@@ -579,10 +628,24 @@ hyper_vector setHVector(SAMPLE * a, int col, int row, int dim)
 	temp_vector.row = row;
 	temp_vector.dim = dim;
 	temp_vector.data = (SAMPLE *)malloc(sizeof(SAMPLE) * row * col *dim);
-	for (int i = 0; i < col * row * dim; ++i) {
+	memcpy(temp_vector.data,a, sizeof(SAMPLE) * row * col *dim);
+	/*for (int i = 0; i < col * row * dim; ++i) {
 		temp_vector.data[i] = a[i];
-	}
+	}*/
 	free(a);
+	return temp_vector;
+}
+
+hyper_vector setEHVector(int col, int row, int dim)
+{
+	hyper_vector temp_vector;
+	temp_vector.col = col;
+	temp_vector.row = row;
+	temp_vector.dim = dim;
+	temp_vector.data = (SAMPLE *)malloc(sizeof(SAMPLE) * row * col *dim);
+	/*for (int i = 0; i < col * row * dim; ++i) {
+	temp_vector.data[i] = a[i];
+	}*/
 	return temp_vector;
 }
 
@@ -593,9 +656,11 @@ hyper_vector setHVector2(SAMPLE * a, int col, int row, int dim)
 	temp_vector.row = row;
 	temp_vector.dim = dim;
 	temp_vector.data = (SAMPLE *)malloc(sizeof(SAMPLE) * row * col *dim);
+	memcpy(temp_vector.data, a, sizeof(SAMPLE) * row * col *dim);
+/*
 	for (int i = 0; i < col * row * dim; ++i) {
 		temp_vector.data[i] = a[i];
-	}
+	}*/
 	return temp_vector;
 }
 hyper_vector getFrames(SIGNAL a)
@@ -631,14 +696,17 @@ hyper_vector getFrames(SIGNAL a)
 	int index = 0;
 	int dem1 = 0, dem2 = 0;
 	int temp = frame_step;
-	SAMPLE *frames = (SAMPLE*)malloc(sizeof(SAMPLE) * a.num_frame * a.frame_length);
+	
+	SAMPLE *frames = (SAMPLE*)calloc(a.num_frame * a.frame_length,sizeof(SAMPLE));
+
+	/*SAMPLE *frames = (SAMPLE*)malloc(sizeof(SAMPLE) * a.num_frame * a.frame_length);
 
 	for (int i = 0; i < a.num_frame; i++) {
 		for (int j = 0; j < frame_len; j++)
 			frames[i * frame_len + j] = 0;
-	}
-	/*system("cls");
-	float temp12;*/
+	}*/
+
+	
 	while (index < a.num_frame)
 	{
 		if (index == 0)                 //frame dau tien
@@ -651,20 +719,13 @@ hyper_vector getFrames(SIGNAL a)
 		{
 			for (int i = temp; i < temp + frame_len; i++)
 			{
-				if (index * frame_len + dem1 > 49538) {
-					printf("");
-				}
 				frames[index * frame_len + dem1++] = signal[i];
-
-
 			}
 			temp += frame_step;
 			dem1 = 0;
 		}
 		index++;
 	}
-
-
 	return setHVector(frames, frame_len, a.num_frame, 1);
 }
 
@@ -850,43 +911,49 @@ input size: numframesx13
 output size: 1x91
 */
 
-hyper_vector get_feature_vector_from_signal(SIGNAL a, filter_bank fbank)
+hyper_vector get_feature_vector_from_signal(SIGNAL a, hyper_vector fbank)
 {
 	/*______________________get_pre_emphasized_signal_________________________________________________*/
 	/*______________________get_silence_free_signal___________________________________________________*/
 	/*______________________get_Frames________________________________________________________________*/
-	hyper_vector frames = getFrames(a);			
-	free(a.raw_signal);
-	/*______________________compute_DFT_and_Power_spectrum____________________________________________*/
 	LARGE_INTEGER Frequency;
 	QueryPerformanceFrequency(&Frequency);
 
+	hyper_vector frames = getFrames(a);			
+	free(a.raw_signal);
+	/*______________________compute_DFT_and_Power_spectrum____________________________________________*/
+
 	hyper_vector power_spec = fft(frames, 512);
+	free(frames.data);
 	/*______________________get_filterbanks___________________________________________________________*/
 	/*______________________apply_filterBanks_________________________________________________________*/
-	hyper_vector transpose_param = setHVector2(fbank.data, fbank.filt_len, fbank.nfilt, 1);		//26x257
+	//hyper_vector transpose_param = setHVector2(fbank.data, fbank.filt_len, fbank.nfilt, 1);		//26x257
 
-	hyper_vector tmp = transpose(transpose_param);
-	free(transpose_param.data);
+	//hyper_vector tmp = transpose(transpose_param);
+	//free(transpose_param.data);
 	//long long start3 = PerformanceCounter();
-//#ifdef USE_MULTI_THREAD
-//	hyper_vector apply = multiply_multithread(power_spec, tmp);
-//#else
-	hyper_vector apply = multiply(power_spec, tmp);
-//#endif // USE_MULTI_THREAD
+	//#ifdef USE_MULTI_THREAD
+	//	hyper_vector apply = multiply_multithread(power_spec, tmp);
+	//#else
+	hyper_vector apply = multiply(power_spec, fbank);
+	//#endif // USE_MULTI_THREAD
 
-										//NUMFRAMESx257 * 257x26
+	//NUMFRAMESx257 * 257x26
 	/*double dftDuration3 = (double)(PerformanceCounter() - start3) * 1000.0 / (double)Frequency.QuadPart;
 
 	if (dftDuration3 > 0.1)
-		printf("Matrix processing" ": %f\n", dftDuration3);
-*/
-	free(tmp.data);
+	printf("Matrix processing" ": %f\n", dftDuration3);
+	*/
+	//free(tmp.data);
 
 	/*______________________get_more_compact_output_by_performing_DCT_conversion_______________________*/
+	//long long start3 = PerformanceCounter();
 
-	hyper_vector test = DCT(apply, 13);
-
+	hyper_vector test = DCT2(apply, 13);
+	/*double dftDuration3 = (double)(PerformanceCounter() - start3) * 1000.0 / (double)Frequency.QuadPart;
+	if (dftDuration3 > 0.1)
+	printf("Matrix processing" ": %f\n", dftDuration3);
+	*/
 	free(apply.data);
 	/*______________________append_frame_energy_into_mfcc_vectors______________________________________*/
 	append_energy(test, power_spec);
@@ -898,10 +965,35 @@ hyper_vector get_feature_vector_from_signal(SIGNAL a, filter_bank fbank)
 	//double dftDuration3 = (double)(PerformanceCounter() - start3) * 1000.0 / (double)Frequency.QuadPart;
 
 	/*if (dftDuration3 > 0.1)
-		printf("Matrix processing" ": %f\n", dftDuration3);
-*/
+	printf("Matrix processing" ": %f\n", dftDuration3);
+	*/
 	free(test.data);
 	return final_feats;
+}
+
+hyper_vector get_feature_vector_from_signal2(hyper_vector a, hyper_vector fbank)
+{
+	/*______________________get_pre_emphasized_signal_________________________________________________*/
+	/*______________________get_silence_free_signal___________________________________________________*/
+	/*______________________get_Frames________________________________________________________________*/
+	//LARGE_INTEGER Frequency;
+	//QueryPerformanceFrequency(&Frequency);
+	//hyper_vector frames = getFrames(a);			
+	//free(a.raw_signal);
+	/*______________________compute_DFT_and_Power_spectrum____________________________________________*/
+	hyper_vector power_spec = fft(a, 512);
+	/*______________________get_filterbanks___________________________________________________________*/
+	/*______________________apply_filterBanks_________________________________________________________*/
+	hyper_vector apply = multiply(power_spec, fbank);
+	//NUMFRAMESx257 * 257x26
+	/*______________________get_more_compact_output_by_performing_DCT_conversion_______________________*/
+	hyper_vector test = DCT2(apply, 13);
+	free(apply.data);
+	/*______________________append_frame_energy_into_mfcc_vectors______________________________________*/
+	append_energy(test, power_spec);
+	free(power_spec.data);
+	/*______________________final_feature_vector_size_1x91_____________________________________________*/
+	return test;
 }
 
 hyper_vector get_first_single_frame(hyper_vector feature_vector)
@@ -914,7 +1006,7 @@ hyper_vector get_first_single_frame(hyper_vector feature_vector)
 	return first_single_frame;
 }
 
-void create_database(char * path, int max_index, filter_bank fbank)
+void create_database(char * path, int max_index, hyper_vector fbank)
 {
 	int  label_cur = 0, i = 0;
 	char *label;
@@ -975,9 +1067,9 @@ void create_database(char * path, int max_index, filter_bank fbank)
 			}
 
 
-			if (i == 9 && label_cur == 2) {
+			/*if (i == 9 && label_cur == 2) {
 				printf("");
-			}
+			}*/
 			sprintf(index, "%d", i);
 			size_t len = len_path_tmp + strlen(index) + 5;
 			path_file = (char *)malloc(len * sizeof(char));
@@ -1106,7 +1198,7 @@ hyper_vector fft(hyper_vector frames, int NFFT)
 	free(cx_in);
 	free(cx_out);
 	kiss_fft_free(cfg);
-	free(frames.data);
+	//free(frames.data);
 
 	pow_spectrum.dim = 1;
 	pow_spectrum.col = NFFT / 2 + 1;
@@ -1131,3 +1223,5 @@ void mfcc_load_normalized_sum(SAMPLE * sum_normal, char *path)
 	}
 	fclose(f);
 }
+
+

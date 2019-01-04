@@ -60,6 +60,9 @@
     <ClInclude Include="pa_util.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="experiment1.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="record.c">
@@ -105,6 +108,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="pa_win_util.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="experiment1.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="trash.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

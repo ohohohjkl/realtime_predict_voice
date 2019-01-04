@@ -19,6 +19,7 @@ extern "C" {
 
 void normalize_test(char *filename, int row, int col);
 void OPTION();
+char **load_words_sent(char *sent_path, int *num_of_sents);
 
 int main(int argc, char **argv)
 {
@@ -35,7 +36,7 @@ int main(int argc, char **argv)
 		char *path_config = (char *)malloc(sizeof(char) *(len_path_folder + 10));
 		strcpy(path_config, path);
 		strcat(path_config, "config.txt");
-		record_audio_to_database(path, &current_index);
+		record_audio_to_database2(path, &current_index);
 		FILE *config;
 		if (!cfileexists(path_config)) {
 			FILE *config_first_write = fopen(path_config, "w");
@@ -76,8 +77,10 @@ int main(int argc, char **argv)
 		}
 		fscanf(config, "%d", &current_max_index);
 		fclose(config);
-		filter_bank fbanks = filterbank(26, 512);
-		create_database(path, current_max_index,fbanks);
+		filter_bank fbank = filterbank(26, 512);
+		hyper_vector transpose_param = setHVector2(fbank.data, fbank.filt_len, fbank.nfilt, 1);		//26x257
+		hyper_vector tmp = transpose(transpose_param);
+		create_database(path, current_max_index, tmp);
 	}
 	if (is_normalize_db) {
 		char *path = argv[2];
@@ -121,23 +124,13 @@ int main(int argc, char **argv)
 		char *path = argv[argc - 2];
 		const char *model_path_def = "normalized.model";
 		const char *sum_path_def = "sum.txt";
-		const char* num_sent_def = "num_sents.txt";
 		size_t len_path = strlen(path);
-		size_t len_path_sent = strlen(sent_path);
-
 		char *model_path = (char *)malloc(sizeof(char) * (len_path + 16));
 		char *sum_path = (char *)malloc(sizeof(char) * (len_path + 7));
-		char *num_sent = (char *)malloc(sizeof(char) * (len_path_sent + 8));
-
 		strcpy(model_path, path);
 		strcat(model_path, model_path_def);
-
 		strcpy(sum_path, path);
 		strcat(sum_path, sum_path_def);
-
-		strcpy(num_sent, sent_path);
-		strcat(num_sent, num_sent_def);
-
 		struct svm_model *model;
 		if ((model = svm_load_model(model_path)) == 0) {
 			fprintf(stderr, "cant load model file \n");
@@ -145,20 +138,51 @@ int main(int argc, char **argv)
 		}
 
 		SAMPLE *sum_normal = (SAMPLE*)malloc(sizeof(SAMPLE) * 91);
-		filter_bank fbanks = filterbank(26, 512);
 		mfcc_load_normalized_sum(sum_normal, sum_path);
-		
-		FILE* fnumt = fopen(num_sent, "r");
+
 		int num_of_sents;
-		fscanf(fnumt, "%d", &num_of_sents);
-		fclose(fnumt);
-		real_time_predict(model, sum_normal,path, sent_path, num_of_sents);
+		char **words;
+		words = load_words_sent(sent_path, &num_of_sents);
+
+		real_time_predict(model, sum_normal, path, sent_path, num_of_sents, words);
 	}
 	OPTION();
 	getch();
 }
 
+char **load_words_sent(char *sent_path, int *num_of_sents) {
+	const char* num_sent_def = "num_sents.txt";
+	size_t len_path_sent = strlen(sent_path);
+	char *num_sent = (char *)malloc(sizeof(char) * (len_path_sent + 8));
 
+	/////////////num_sent///////////
+	strcpy(num_sent, sent_path);
+	strcat(num_sent, num_sent_def);
+	FILE* fnumt = fopen(num_sent, "r");
+	fscanf(fnumt, "%d", num_of_sents);
+	fclose(fnumt);
+	////////////words list///////////
+
+	const char* lwords = "words.txt";
+	size_t len_path_word = strlen(lwords);
+	char *word_path = (char *)malloc(sizeof(char) * (len_path_sent + 8));
+	strcpy(word_path, sent_path);
+	strcat(word_path, lwords);
+
+	FILE* fword = fopen(word_path, "r");
+	int num_words;
+	fscanf(fword, "%d", &num_words);
+	char **words = (int**)malloc(num_words * sizeof(char*));
+
+	for (int i = 0; i < num_words; i++) {
+		words[i] = (char*)malloc(5 * sizeof(char));
+		fscanf(fword, "%s", words[i]);
+		printf("%s\n", words[i]);
+	}
+
+	fclose(fword);
+	return words;
+}
 
 //////////////////////////////////
 //////////////////////////////////
@@ -204,7 +228,7 @@ void normalize_test(char *filename, int row, int col) {
 
 void OPTION() {
 	int current_max_index = 0;
-	char *path = "./tu_dong_mo_cua_truoc_ra/";
+	char *path = "D:\\Visual_Studio_Workspace\\data\\scaleData\\";
 	size_t len_path = strlen(path);
 	const char *model_path_def = "normalized.model";
 	char *model_path = (char *)malloc(sizeof(char) * (len_path + 16));
@@ -248,10 +272,14 @@ void OPTION() {
 		fscanf(config, "%d", &current_max_index);
 		fclose(config);
 		filter_bank fbank = filterbank(26, 512);
-		create_database(path, current_max_index,fbank);
+		hyper_vector transpose_param = setHVector2(fbank.data, fbank.filt_len, fbank.nfilt, 1);		//26x257
+		hyper_vector tmp = transpose(transpose_param);
+		create_database(path, current_max_index, tmp);
 		break;
 	case 2:
 	{
+		char *sent_path = "D:\\Work_place_game\\sentences\\";
+		const char *model_path_def = "normalized.model";
 		const char *sum_path_def = "sum.txt";
 		size_t len_path = strlen(path);
 
@@ -264,6 +292,8 @@ void OPTION() {
 		strcpy(sum_path, path);
 		strcat(sum_path, sum_path_def);
 
+
+
 		struct svm_model *model;
 		if ((model = svm_load_model(model_path)) == 0) {
 			fprintf(stderr, "cant load model file \n");
@@ -271,26 +301,13 @@ void OPTION() {
 		}
 
 		SAMPLE *sum_normal = (SAMPLE*)malloc(sizeof(SAMPLE) * 91);
+		filter_bank fbanks = filterbank(26, 512);
 		mfcc_load_normalized_sum(sum_normal, sum_path);
-		for (int i = 0; i < 91; i++) {
-			printf("%f\n", sum_normal[i]);
-		}
 
-		char *sent_path = "./sentences/";
-		const char* num_sent_def = "num_sents.txt";
-		size_t len_path_sent = strlen(sent_path);
-
-		char *num_sent = (char *)malloc(sizeof(char) * (len_path_sent + 8));
-
-		strcpy(num_sent, sent_path);
-		strcat(num_sent, num_sent_def);
-
-		FILE* fnumt = fopen(num_sent, "r");
 		int num_of_sents;
-		fscanf(fnumt, "%d", &num_of_sents);
-		fclose(fnumt);
-
-		real_time_predict(model, sum_normal, path, sent_path, num_of_sents);
+		char **words;
+		words = load_words_sent(sent_path, &num_of_sents);
+		real_time_predict(model, sum_normal, path, sent_path, num_of_sents, words);
 		break;
 	}
 	case 3: {
@@ -304,8 +321,18 @@ void OPTION() {
 		break;
 	}
 	case 4: {
-		char *path = ".\\sentences\\mo_cua_truoc_ra.wav";
-		PlaySound(path, NULL, SND_SYNC);
+		char *path = "D:\\Visual_Studio_Workspace\\sentences\\mo_cua_truoc_ra.mp3";
+		system(path);
+		break;
+	}
+	case 5: {
+		int current_index;
+		char *path = "D:\\Visual_Studio_Workspace\\data\\";
+		size_t len_path_folder = strlen(path);
+		char *path_config = (char *)malloc(sizeof(char) *(len_path_folder + 10));
+		strcpy(path_config, path);
+		strcat(path_config, "config.txt");
+		record_audio_to_database2(path, &current_index);
 	}
 	default:
 

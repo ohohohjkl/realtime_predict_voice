@@ -1,0 +1,4 @@
+4
+6 8 9 10
+bat den tang hai
+.\\sentences\\bat_den_tang_hai.wav

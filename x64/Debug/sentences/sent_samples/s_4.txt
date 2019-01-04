@@ -1,0 +1,4 @@
+4
+7 8 9 10
+tat den tang hai
+.\\sentences\\tat_den_tang_hai.wav

@@ -8,6 +8,7 @@
 #include "utils.h"
 #include "complex.h"
 #include <math.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include "windows.h"
 #include <process.h>
@@ -35,7 +36,6 @@ long long start, stop, sample_start,last;
 //#define PRINT_TIME_PROCESS_STOP(message,threshold)
 //#define PRINT_TIME_PROCESS_START()
 
-
 #define PI 3.14159265359
 #define false 0
 #define true 1
@@ -44,7 +44,6 @@ long long start, stop, sample_start,last;
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 	typedef struct SIGNAL {
 		SAMPLE *raw_signal;
 		int frame_length;		//so sample trong 1 frame
@@ -79,12 +78,15 @@ extern "C" {
 	SIGNAL setSignal(SAMPLE *a, int size);
 	SIGNAL setSignal2(SAMPLE * a, int size);
 	hyper_vector setHVector(SAMPLE *a, int col, int row, int dim);
+	hyper_vector setEHVector(int col, int row, int dim);
 	hyper_vector setHVector2(SAMPLE * a, int col, int row, int dim);
 	hyper_vector getFrames(struct SIGNAL a);
 	void append_energy(hyper_vector dct, hyper_vector pow_spec);
 
 	//COMPLEX *DFT(hyper_vector a, int pointFFT
 	hyper_vector DCT(hyper_vector a, int num_ceps);
+	bool FastDctLee_transform(double vector[], size_t len);
+	static void forwardTransform(double vector[], double temp[], size_t len);
 	hyper_vector DFT_PowerSpectrum(hyper_vector a, int pointFFT);
 
 	float magnitude(float real, float img);
@@ -111,7 +113,8 @@ extern "C" {
 	void Get_normalize(int label, float * data, int row, int col);
 	void normalize2(int label, float * data, int row, int col);
 	hyper_vector var(hyper_vector);
-	hyper_vector get_feature_vector_from_signal(SIGNAL a,filter_bank fbank);
+	hyper_vector get_feature_vector_from_signal(SIGNAL a, hyper_vector fbank);
+	hyper_vector get_feature_vector_from_signal2(hyper_vector a, hyper_vector fbank);
 	void write_feature_vector_to_database(hyper_vector feature_vector, char *name);
 
 	////////////////////////////////
@@ -120,7 +123,7 @@ extern "C" {
 
 	//////////////////////test_signal_via_matlab/////////////////////////
 	void writeDBFS(SAMPLE* raw_signal, int trim_ms, int signal_len);
-	void create_database(char *path, int max_index, filter_bank fbank);
+	void create_database(char *path, int max_index, hyper_vector fbank);
 	void normalize_db(char *path_nor, char *path_mean, char *path_db, char *path_info, char*path_sum, int max_index);
 	void normalize_from_file(char *path_nor, char *path_mean, char *filename, char*path_sum, int row, int col);
 

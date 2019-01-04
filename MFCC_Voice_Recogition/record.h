@@ -1,14 +1,13 @@
 #ifndef RECORD_H
 #define RECORD_H
 
-/* includes 
+/* includes
 -------------------------------------------
 -------------------------------------------*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "portaudio.h"
-
 /*defines, constants
 -------------------------------------------
 -------------------------------------------*/
@@ -62,7 +61,7 @@ extern "C" {
 	char *get_name_of_new_file(char *path, char *keyword, char *numerical_order);
 	KEYWORDS get_key_word(int key);
 	int get_number_of_sample_in_record();
-	SAMPLE* read_audio_signal_from_file(char *path,int *size);
+	SAMPLE* read_audio_signal_from_file(char *path, int *size);
 #ifdef __cplusplus
 }
 #endif
